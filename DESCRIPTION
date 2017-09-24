@@ -12,7 +12,8 @@ Depends:
     R (>= 3.0.0),
     SuperLearner,
     Rsolnp,
-    cvAUC
+    cvAUC,
+    future
 Suggests: 
     testthat,
     knitr,

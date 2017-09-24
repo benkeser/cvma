@@ -70,7 +70,7 @@ optim_risk_y_r2 <- function(y_weight, input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @import stats qnorm
+#' @importFrom stats qnorm
 #' @return List with named components cv_measure (cross-validated AUC), ci_low (lower
 #' 100(1 - \code{y_weight_control$alpha})\% CI), ci_high (upper
 #' 100(1 - \code{y_weight_control$alpha})\% CI), p_value (p-value of test of null
@@ -95,12 +95,12 @@ optim_risk_y_r2 <- function(y_weight, input, y_weight_control){
 cv_risk_y_r2 <- function(input, y_weight_control){
     # get ensemble y
     ens_y <- lapply(input, function(i){
-        do.call(y_weight_control$ensemble_fn, args = list(weight = i$y_weight$weights, pred = i$Y))  
+        do.call(y_weight_control$ensemble_fn, args = list(weight = i$y_weight$weight, pred = i$Y))  
     })
 
     # get ensemble p
     ens_p <- lapply(input, function(i){
-        do.call(y_weight_control$ensemble_fn, args = list(weight = i$y_weight$weights, pred = i$pred))  
+        do.call(y_weight_control$ensemble_fn, args = list(weight = i$y_weight$weight, pred = i$pred))  
     })
 
     # get ensemble marginal mean 
@@ -132,11 +132,11 @@ cv_risk_y_r2 <- function(input, y_weight_control){
     se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(crossprod(grad, ic)))/length(ic_mse))
         
     ci_low <- 1 - exp(
-        log(cv_mse/cv_var) + stats::qnorm(1-(alpha/2)) * se_1mlog_cv_r2
+        log(cv_mse/cv_var) + stats::qnorm(1-(y_weight_control$alpha/2)) * se_1mlog_cv_r2
     )
     
     ci_high <- 1 - exp(
-        log(cv_mse/cv_var) - stats::qnorm(1-(alpha/2)) * se_1mlog_cv_r2
+        log(cv_mse/cv_var) - stats::qnorm(1-(y_weight_control$alpha/2)) * se_1mlog_cv_r2
     )
     p_value <- pnorm(log(cv_mse/cv_var)/se_1mlog_cv_r2)
     
@@ -160,7 +160,7 @@ cv_risk_y_r2 <- function(input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @import cvAUC cvAUC
+#' @importFrom cvAUC cvAUC
 #' @return Numeric value of cross-validated AUC.
 #' @examples
 #' 
@@ -185,8 +185,8 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
     if(!all(unlist(ens_y) %in% c(0,1))){
         stop("risk_y_auc requires all composite outcome to be either 0 or 1")
     }
-    auc <- cvAUC::cvAUC(input$pred, ens_y, input$folds)
-    risk <- 1 - auc
+    auc <- cvAUC::cvAUC(ens_p, ens_y, input$folds)
+    risk <- 1 - auc$cvAUC
     return(risk)
 }
 
@@ -215,7 +215,7 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @import cvAUC ci.cvAUC
+#' @importFrom cvAUC ci.cvAUC
 #' @return List with named components cv_measure (cross-validated AUC), ci_low (lower
 #' 100(1 - \code{y_weight_control$alpha})\% CI), ci_high (upper
 #' 100(1 - \code{y_weight_control$alpha})\% CI), p_value (p-value of test of null
@@ -249,10 +249,10 @@ cv_risk_y_auc <- function(input, y_weight_control){
     }
     cv_auc_fit <- cvAUC::ci.cvAUC(ens_p, ens_y, confidence = 1 - y_weight_control$alpha)
     # p-value of one-sided test that cvAUC = 0.5 vs. cvAUC > 0.5
-    p_value <- pnorm((cv_auc_fit$cvAUC - 0.5) / se, lower.tail = FALSE)
+    p_value <- pnorm((cv_auc_fit$cvAUC - 0.5) / cv_auc_fit$se, lower.tail = FALSE)
     out <- list(cv_measure = cv_auc_fit$cvAUC, ci_low = cv_auc_fit$ci[1],
                 ci_high = cv_auc_fit$ci[2], p_value = p_value)
-    return(risk)
+    return(out)
 }
 
 #' Compute optimized convex weights for outcomes
@@ -278,7 +278,7 @@ cv_risk_y_auc <- function(input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @import Rsolnp solnp
+#' @importFrom Rsolnp solnp
 #' @return List with named components weight (optimized weights) and ybar (marginal
 #' mean outcome for optimized weights, used to compute the cross-validated nonparametric
 #' R-squared). 
@@ -306,7 +306,7 @@ weight_y_convex <- function(input, y_weight_control){
 
     # constrain weights to sum to 1
     constraint <- function(y_weight, input, y_weight_control){
-        1 - sum(weight)
+        1 - sum(y_weight)
     }
 
     # reformat input into a single data.frame
@@ -321,7 +321,7 @@ weight_y_convex <- function(input, y_weight_control){
                          y_weight_control = y_weight_control)
 
     # get ybar for the minimized weights
-    final_ens_y <- do.call(ensemble_fn, args = list(weight = fit$pars, pred = all_y))
+    final_ens_y <- do.call(y_weight_control$ensemble_fn, args = list(weight = fit$pars, pred = all_y))
 
     return(list(weight = fit$pars, ybar = mean(final_ens_y)))
 }
@@ -346,7 +346,7 @@ weight_y_convex <- function(input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @import Rsolnp solnp
+#' @importFrom Rsolnp solnp
 #' @return List with named components weight (optimized weights) and ybar (marginal
 #' mean outcome for optimized weights, used to compute the cross-validated nonparametric
 #' R-squared). 
@@ -371,19 +371,25 @@ weight_y_convex <- function(input, y_weight_control){
 weight_y_01 <- function(input, y_weight_control){
     # number of outcomes
     J <- dim(input[[1]]$Y)[2]
+    
+    # reformat input into a single data.frame
+    all_pred <- Reduce(rbind, lapply(input, '[[', "pred"))
+    all_y <- Reduce(rbind, lapply(input, '[[', "Y"))
+    all_folds <- unlist(lapply(input,function(l){ rep(l$valid_folds, length(l$Y[,1])) }))
+    solnp_input <- list(Y = all_y, pred = all_pred)
 
     # get risk for each outcome
     risks <- rep(0, J)
     for(j in 1:J){
-        weight_y <- rep(0, J)
-        weight_y[j] <- 1
+        y_weight <- rep(0, J)
+        y_weight[j] <- 1
         risks[j] <- do.call(y_weight_control$optim_risk_fn, 
-                            args = list(weight = weight_y, input = input,
+                            args = list(y_weight = y_weight, input = input,
                                         y_weight_control = y_weight_control))
     }
 
     # find lowest risk
     final_weight <- rep(0, J)
-    final_weight[which.min(risks, na.rm = TRUE)] <- 1
+    final_weight[which.min(risks)] <- 1
     return(list(weight = final_weight))
 }

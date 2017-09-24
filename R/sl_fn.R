@@ -121,7 +121,7 @@ optim_risk_sl_nloglik <- function(sl_weight, input, sl_control,
 #' from \code{learner} and columns correspond to different \code{leaner}s). 
 #' @param sl_control Super learner control options. 
 #' @export
-#' @import cvAUC cvAUC
+#' @importFrom cvAUC cvAUC
 #' @return Numeric value of cross-validated AUC. 
 #' 
 #' @examples
@@ -171,7 +171,7 @@ optim_risk_sl_auc <- function(sl_weight, input, sl_control){
 #' @param sl_control List of super learner control options. 
 #' 
 #' @export
-#' @import stats qnorm
+#' @importFrom stats qnorm
 #' @return A list with named entries cv_measure, ci_low, ci_high, and p_value. The list will
 #' be returned by \code{max_assoc} irrespective of the named entries; however, the \code{print}
 #' methods will only work if the function returns the above names. 
@@ -354,6 +354,6 @@ weight_sl_01 <- function(input, sl_control){
 
     # find lowest risk
     final_weight <- rep(0, M)
-    final_weight[which.min(risks, na.rm = TRUE)] <- 1
+    final_weight[which.min(risks)] <- 1
     return(list(weight = final_weight))
 }

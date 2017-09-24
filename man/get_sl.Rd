@@ -22,7 +22,7 @@ than \code{all_fits}).}
 
 \item{folds}{Vector identifying which fold observations fall into.}
 
-\item{sl_control}{A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
+\item{sl_control}{A list with named entries ensemble_fn, optim_risk_fn, weight_fn,
 cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 \code{?sl_control_options} for more on how users may supply their own functions.}
 

@@ -4,7 +4,7 @@
 \alias{trim_qlogis}
 \title{Helper function to compute a trimmed logit}
 \usage{
-trim_qlogis(p, trim)
+trim_qlogis(p, trim = 1e-04)
 }
 \description{
 Helper function to compute a trimmed logit

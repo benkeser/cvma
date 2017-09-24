@@ -1,6 +1,8 @@
 #' Cross-validated maximal association measures
 #' 
 #' TO DO: Add a description here. 
+#' TO DO: Figure out how future works (e.g., can plan() be specified internally
+#' or externally?)
 #' 
 #' @param Y A matrix or data.frame of outcomes
 #' @param X A matrix or data.frame of predictors
@@ -20,14 +22,12 @@
 #' layer (i.e., V-fold super learner).
 #' @param return_all_y Whether to return cross-validated performance measures for each
 #' column of \code{Y}. 
-#' @param alpha Passed to \code{sl_control$cv_risk_fn} and \code{y_weight_control$cv_risk_fn},
-#' which compute 100(1 - alpha)\% confidence intervals. 
-#' 
+#' @return TO DO : Add return values
 #' @export
 #' 
 #' @seealso predict method 
 #' 
-#' @import 
+#' @importFrom future future_lapply
 #' 
 #' @examples
 #' set.seed(1234)
@@ -37,7 +37,7 @@
 #' Y1 <- rnorm(100, X$x1 + X$x2, 1)
 #' Y2 <- rnorm(100, X$x1 + X$x2, 3)
 #' Y <- data.frame(Y1 = Y1, Y2 = Y2)
-#' fit <- max_assoc(Y = Y, X = X, V = 5, 
+#' fit <- cvma(Y = Y, X = X, V = 5, 
 #'                 learners = c("SL.glm","SL.mean"))
 #' 
 #' 
@@ -46,7 +46,8 @@ cvma <- function(Y, X, V = 5, learners,
                                    optim_risk_fn = "optim_risk_sl_se",
                                    weight_fn = "weight_sl_convex",
                                    cv_risk_fn = "cv_risk_sl_r2",
-                                   family = gaussian()),
+                                   family = gaussian(),
+                                   alpha = 0.05),
                       y_weight_control = list(ensemble_fn = "ensemble_linear",
                                   weight_fn = "weight_y_convex",
                                   optim_risk_fn = "optim_risk_y_r2",
@@ -58,7 +59,8 @@ cvma <- function(Y, X, V = 5, learners,
                       ){
     
     # TO DO: add standardize outcome options
-
+    #           e.g., scale all outcomes to be mean 0 SD 1
+    #           e.g., scale all multivariate outcome by covariance matrix?
 
     # get initial parameter values
     n <- length(Y[,1])
@@ -80,7 +82,7 @@ cvma <- function(Y, X, V = 5, learners,
     all_fit_tasks <- make_fit_task_list(Ynames = colnames(Ymat), learners = learners, 
                                         V = V, return_outer_sl = return_outer_sl)
     # NOTE: could be future_lapply for parallelization
-    all_fits <- future_lapply(all_fit_tasks, FUN = get_fit, folds = folds, 
+    all_fits <- future::future_lapply(all_fit_tasks, FUN = get_fit, folds = folds, 
                               X = X, Y = Ymat, sl_control = sl_control)
 
     # all super learner weight-getting tasks
@@ -109,7 +111,7 @@ cvma <- function(Y, X, V = 5, learners,
     # get risk input
     risk <- get_risk(Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
                      all_fits = all_fits, all_sl = all_sl, folds = folds, 
-                     alpha = alpha, all_weight = all_weight, 
+                     all_weight = all_weight, 
                      sl_control = sl_control, y_weight_control = y_weight_control, learners = learners) 
                      # ensemble_fn = ensemble_fn, cv_risk_y_weight_control = cv_risk_y_weight_control)
 
@@ -147,8 +149,7 @@ cvma <- function(Y, X, V = 5, learners,
         risk_all_y <- lapply(outer_sl_tasks, FUN = get_risk_sl, 
                              Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
                              all_fits = all_fits, all_sl = all_sl,
-                             folds = folds, sl_control = sl_control, learners = learners,
-                             alpha = alpha)
+                             folds = folds, sl_control = sl_control, learners = learners)
     }else{
         risk_all_y <- NULL
     }

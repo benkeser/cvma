@@ -18,13 +18,24 @@ get_fit <- function(task, folds, X, Y, sl_control){
 
     train_Y <- Y[train_idx, task$Yname]
     train_X <- X[train_idx, , drop = FALSE]
-    valid_X <- X[valid_idx, , drop = FALSE]
+    if(sum(valid_idx) > 0){
+      valid_X <- X[valid_idx, , drop = FALSE]
+    }else{
+      # if learner being fit on all data, none left
+      # for validation, so just arbitrarily pump in 
+      # first observation. 
+      valid_X <- X[1, , drop = FALSE]
+    }
     # fit super learner wrapper
     fit <- do.call(task$SL_wrap, list(Y = train_Y, X = train_X,
                                  newX = valid_X, obsWeights = rep(1, length(train_Y)),
                                  family = sl_control$family))
     # split up validation predictions
-    fit$pred <- split(fit$pred, folds[valid_idx])
+    if(sum(valid_idx) > 0){
+      fit$pred <- split(fit$pred, folds[valid_idx])
+    }else{
+      fit$pred <- NULL
+    }
     # return(fit)
     return(c(task, fit))
 }
@@ -70,12 +81,11 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
                                  split_Y = split_Y, Ynames = Ynames, 
                                  all_fits = all_fits, all_sl = all_sl, 
                                  all_fit_tasks = all_fit_tasks, V = V, 
-                                 ensemble_fn = sl_control$ensemble_fn,
+                                 sl_control = sl_control,
                                  learners = learners)
 
     y_weight <- do.call(y_weight_control$weight_fn, 
-                         args = list(input = input, ensemble_fn = y_weight_control$ensemble_fn,
-                                     risk_y_weight_control = y_weight_control$optim_risk_fn))
+                         args = list(input = input, y_weight_control = y_weight_control))
     out <- c(list(training_folds = task$training_folds), y_weight)
     return(out)
 }
@@ -90,7 +100,7 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
 #' @param all_fits A list of all learner fits (from \code{get_fit})
 #' @param all_fit_tasks A list of all learner fitting tasks (quicker to search over
 #' than \code{all_fits}). 
-#' @param sl_control A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
+#' @param sl_control A list with named entries ensemble_fn, optim_risk_fn, weight_fn,
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
@@ -99,7 +109,6 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
 #' @return Named list identifying training folds used and the composite outcome weights. 
 #' 
 get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learners){
-                   # ensemble_fn, risk_sl_control, weight_sl_control
     split_Y <- split(Y[ , task$Yname], folds)
     if(!all(task$training_folds %in% 1:V)){
         valid_folds <- (1:V)[-task$training_folds]        
@@ -160,8 +169,7 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
                           all_fits = all_fits, learners = learners)
     # get sl ensemble weights
     sl_weight_list <- do.call(sl_control$weight_fn, 
-                          args = list(input = input, ensemble_fn = sl_control$ensemble_fn,
-                                      risk_sl_control = sl_control$optim_risk_fn))
+                          args = list(input = input, sl_control = sl_control))
     sl_weight <- sl_weight_list$weight
 
     # get risks for each learner
@@ -175,7 +183,8 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
         weights <- rep(0, M)
         weights[m] <- 1
         risks[m] <- do.call(sl_control$optim_risk_fn, 
-                            args = list(sl_weight = weights, input = risk_input))
+                            args = list(sl_weight = weights, sl_control = sl_control,
+                                        input = risk_input))
     }
 
     # get fits for each learner
@@ -225,7 +234,7 @@ get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds,
         valid_folds <- NULL
     }    
     input <- get_risk_sl_input(split_Y = split_Y, Yname = task$Yname, V = V,
-                               valid_folds = valid_folds, all_fits = all_fits, 
+                               all_fits = all_fits, 
                                all_weight = all_weight, all_sl = all_sl, 
                                all_fit_tasks = all_fit_tasks, folds = folds, 
                                sl_control = sl_control, learners = learners)
@@ -261,9 +270,9 @@ get_risk <- function(Y, V, all_fit_tasks, all_fits, all_weight, folds, all_sl,
     input <- get_risk_input(split_Y = split_Y, Ynames = colnames(Y), 
                             all_fits = all_fits, all_weight = all_weight,
                             all_sl = all_sl, all_fit_tasks = all_fit_tasks, 
-                            ensemble_fn = sl_control$ensemble_fn, V = V, folds = folds,
+                            sl_control = sl_control, V = V,
                             learners = learners)
     risk <- do.call(y_weight_control$cv_risk_fn, 
-                    args = list(input = input, sl_control = sl_control))
+                    args = list(input = input, y_weight_control = y_weight_control))
     return(risk)
 }

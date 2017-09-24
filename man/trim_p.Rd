@@ -4,7 +4,7 @@
 \alias{trim_p}
 \title{Helper function to trim a prediction}
 \usage{
-trim_p(p, trim)
+trim_p(p, trim = 1e-04)
 }
 \description{
 Helper function to trim a prediction

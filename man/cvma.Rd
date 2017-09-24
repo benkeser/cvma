@@ -6,8 +6,8 @@
 \usage{
 cvma(Y, X, V = 5, learners, sl_control = list(ensemble_fn =
   "ensemble_linear", optim_risk_fn = "optim_risk_sl_se", weight_fn =
-  "weight_sl_convex", cv_risk_fn = "cv_risk_sl_r2", family = gaussian()),
-  y_weight_control = list(ensemble_fn = "ensemble_linear", weight_fn =
+  "weight_sl_convex", cv_risk_fn = "cv_risk_sl_r2", family = gaussian(), alpha =
+  0.05), y_weight_control = list(ensemble_fn = "ensemble_linear", weight_fn =
   "weight_y_convex", optim_risk_fn = "optim_risk_y_r2", cv_risk_fn =
   "cv_risk_y_r2", alpha = 0.05), return_outer_weight = TRUE,
   return_outer_sl = TRUE, return_all_y = TRUE)
@@ -39,12 +39,14 @@ layer (i.e., V-fold super learner).}
 
 \item{return_all_y}{Whether to return cross-validated performance measures for each
 column of \code{Y}.}
-
-\item{alpha}{Passed to \code{sl_control$cv_risk_fn} and \code{y_weight_control$cv_risk_fn},
-which compute 100(1 - alpha)\% confidence intervals.}
+}
+\value{
+TO DO : Add return values
 }
 \description{
-TO DO: Add a description here.
+TO DO: Add a description here. 
+TO DO: Figure out how future works (e.g., can plan() be specified internally
+or externally?)
 }
 \examples{
 set.seed(1234)
@@ -54,7 +56,7 @@ X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
 Y1 <- rnorm(100, X$x1 + X$x2, 1)
 Y2 <- rnorm(100, X$x1 + X$x2, 3)
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
-fit <- max_assoc(Y = Y, X = X, V = 5, 
+fit <- cvma(Y = Y, X = X, V = 5, 
                 learners = c("SL.glm","SL.mean"))
 
 

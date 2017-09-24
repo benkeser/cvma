@@ -22,13 +22,13 @@ ensemble_linear <- function(pred, weight){
 
 #' Helper function to compute a trimmed logit
 #' @keywords internal 
-trim_qlogis <- function(p, trim){
+trim_qlogis <- function(p, trim = 1e-4){
     return(qlogis(trim_p(p, trim = trim)))
 }
 
 #' Helper function to trim a prediction
 #' @keywords internal 
-trim_p <- function(p, trim){
+trim_p <- function(p, trim = 1e-4){
     p[p < trim] <- trim; p[p > 1 - trim] <- 1 - trim
     return(p)
 }
