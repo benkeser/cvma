@@ -1,0 +1,23 @@
+Package: cvma
+Title: Cross-validation-based maximal association
+Version: 0.1.0
+Authors@R: c(person("David", "Benkeser", role = c("aut", "cre", "cph"),
+                    email = "benkeser@emory.edu"),
+             person("Ivana", "Malenica", role = c("aut"),
+                    email = "imalenica@berkeley.edu")
+            )
+Description: Estimates of association of a set of covariates with a multivariate outcome.
+    Nested cross-validation is used to fit super learners for each component of the outcome, and to determine a composite outcomes that maximizes the fit of the super learner. Finally, an outer layer of cross-validation is used to accurately assess an association of the super learner with the optimized composite outcome.
+Depends:
+    R (>= 3.0.0),
+    SuperLearner,
+    Rsolnp,
+    cvAUC
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1

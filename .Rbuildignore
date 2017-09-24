@@ -1,0 +1,7 @@
+^max_assoc\.Rproj$
+^\.travis\.yml$
+^appveyor\.yml$
+^\.gitignore$
+^\README\.md$
+^\.git$
+^docs$
