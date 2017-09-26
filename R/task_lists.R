@@ -19,9 +19,12 @@ make_y_weight_task_list <- function(V){
 }
 #' Helper function to make a task list for computing super learners
 #' @keyword internal
-make_sl_task_list <- function(Ynames, V){
+make_sl_task_list <- function(Ynames, V, fold_fits = c(V-1, V-2)){
     # get super learner fit on all 1-way hold-outs and 2-way hold-outs
-    all_training <- c(combn(V, V-1, simplify = FALSE), combn(V, V-2, simplify = FALSE))
+    all_training <- NULL
+    for(v in fold_fits){
+        all_training <- c(all_training, combn(V, v, simplify = FALSE))
+    }
     full_param <- expand.grid(training_folds = all_training, 
                               Yname = Ynames)
     # reorganize into a list
@@ -32,9 +35,12 @@ make_sl_task_list <- function(Ynames, V){
 }
 #' Helper function to make a task list for computing learner fits
 #' @keyword internal
-make_fit_task_list <- function(Ynames, learners, V, return_outer_sl){
+make_fit_task_list <- function(Ynames, learners, V, return_outer_sl,
+                               fold_fits = NULL){
     out <- list()
-    fold_fits <- c(V-1,V-2,V-3)
+    if(is.null(fold_fits)){
+        fold_fits <- c(V-1,V-2,V-3)        
+    }
     # if sl return is requested, we'll need learner fits on all data
     if(return_outer_sl){
         fold_fits <- c(V, fold_fits)

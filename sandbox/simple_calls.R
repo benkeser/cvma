@@ -12,7 +12,7 @@ X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
 Y1 <- rnorm(100, X$x1 + X$x2, 1)
 Y2 <- rnorm(100, X$x1 + X$x2, 3)
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
-fit <- cvma(Y = Y, X = X, V = 5, 
+fit <- cvma(Y = Y, X = X, V = 10, 
                 learners = c("SL.glm","SL.mean"))
 
 # example with AUC
@@ -38,4 +38,3 @@ fit <- cvma(Y = Y, X = X, V = 5,
                                   optim_risk_fn = "optim_risk_y_auc",
                                   cv_risk_fn = "cv_risk_y_auc",
                                   alpha = 0.05))
-

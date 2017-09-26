@@ -21,10 +21,9 @@ get_fit <- function(task, folds, X, Y, sl_control){
     if(sum(valid_idx) > 0){
       valid_X <- X[valid_idx, , drop = FALSE]
     }else{
-      # if learner being fit on all data, none left
-      # for validation, so just arbitrarily pump in 
-      # first observation. 
-      valid_X <- X[1, , drop = FALSE]
+      # if learner being fit on all data, then return
+      # predictions on training sample
+      valid_X <- train_X
     }
     # fit super learner wrapper
     fit <- do.call(task$SL_wrap, list(Y = train_Y, X = train_X,
@@ -34,7 +33,7 @@ get_fit <- function(task, folds, X, Y, sl_control){
     if(sum(valid_idx) > 0){
       fit$pred <- split(fit$pred, folds[valid_idx])
     }else{
-      fit$pred <- NULL
+      fit$pred <- fit$pred
     }
     # return(fit)
     return(c(task, fit))
@@ -110,7 +109,7 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
 #' 
 get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learners){
     split_Y <- split(Y[ , task$Yname], folds)
-    if(!all(task$training_folds %in% 1:V)){
+    if(!all(1:V %in% task$training_folds)){
         valid_folds <- (1:V)[-task$training_folds]        
     }else{
         valid_folds <- NULL
@@ -152,13 +151,13 @@ get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learn
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
 #' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
-#' 
 #' @return Named list of super learner results. 
 
 get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, 
-                             sl_control, return_learner_fits = TRUE, learners){
+                             sl_control, return_learner_fits = TRUE, 
+                             learners){
     split_Y <- split(Y[ , task$Yname], folds)
-    if(!all(task$training_folds %in% 1:V)){
+    if(!all(1:V %in% task$training_folds)){
         valid_folds <- (1:V)[-task$training_folds]        
     }else{
         valid_folds <- NULL
@@ -197,11 +196,6 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
 
     out <- list(Yname = task$Yname, sl_weight = sl_weight,
                 learner_risks = risks, learers = fit_out)
-    # get sl predictions on valid_folds folds by searching for when
-    # (1:V)[-valid_folds] is training sample
-    # sl_pred <- get_sl_pred(valid_folds = valid_folds, V = V, all_fit_tasks = all_fit_tasks,
-    #                        all_fits = all_fits, y = Y_name, sl_weight = sl_weight,
-    #                        split_Y = split_Y)
     return(out)
 }
 
@@ -221,14 +215,13 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
 #' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
-#' 
 #' @return Named list identifying which outcome and the cross-validated risk of the super learner. 
 
 get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds, 
                         sl_control, learners){
     split_Y <- split(Y[ , task$Yname], folds)
     
-    if(!all(task$training_folds %in% 1:V)){
+    if(!all(1:V %in% task$training_folds)){
         valid_folds <- (1:V)[-task$training_folds]        
     }else{
         valid_folds <- NULL
@@ -239,7 +232,8 @@ get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds,
                                all_fit_tasks = all_fit_tasks, folds = folds, 
                                sl_control = sl_control, learners = learners)
     risk <- do.call(sl_control$cv_risk_fn, args = list(input = input, sl_control = sl_control))
-    return(c(Yname = task$Yname, risk))
+    out <- c(Yname = task$Yname, risk)
+    return(out)
 }
 
 #' Get cross-validated risk of entire procedure (i.e., outer-most cross-validation layer)
