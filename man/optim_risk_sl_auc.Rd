@@ -36,18 +36,5 @@ zero in order that the loss is bounded. The bounds on the outcome are set via
 }
 \examples{
 
-# simulate data with proper format
-# Y is one component of the multivariate outcome
-# pred is the predictions made by learners
-input <- list(Y = rbinom(50, 1, 0.5), 
-              pred = cbind(runif(50,0,1), runif(50,0,1)))
-
-# made up weights
-sl_weight <- c(0.5, 0.5)
-# linear ensemble
-sl_control <- list(ensemble_fn = "ensemble_linear")
-# get risk 
-all_y <- unlist(lapply(input,"[",1))
-risk <- optim_risk_sl_auc(sl_weight, input, sl_control)
 
 }

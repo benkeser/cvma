@@ -19,6 +19,8 @@ and \code{all_sl}.}
 
 \item{V}{Number of folds.}
 
+\item{folds}{Cross-validation folds.}
+
 \item{all_sl}{List of all super learner weight fits.}
 
 \item{all_fit_tasks}{List of all learner fit tasks (faster to search over than

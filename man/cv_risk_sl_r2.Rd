@@ -11,7 +11,9 @@ cv_risk_sl_r2(input, sl_control)
 with entries: Y (univariate outcome for this validation fold), pred (matrix of predictions
 from \code{learner} and columns correspond to different \code{leaner}s).}
 
-\item{sl_control}{List of super learner control options.}
+\item{sl_control}{List of super learner control options. 
+
+TO DO: add example}
 }
 \value{
 A list with named entries cv_measure, ci_low, ci_high, and p_value. The list will
@@ -32,14 +34,4 @@ squared-error of the super learner for predicting a univariate outcome (one of t
 components of \code{Y}) and Var is the cross-validated marginal mean of this outcome. The p-value
 is for the one-sided hypothesis test that cross-validated R-squared equals zero against
 the alternative that it is greater than zero.
-}
-\examples{
-
-# simulate data and properly format
-set.seed(1234)
-input <- list(list(Y = rnorm(50), pred = rnorm(50)),
-              list(Y = rnorm(50), pred = rnorm(50)))
-
-# get risk 
-risk <- cv_risk_sl_r2(input, alpha = 0.05)
 }

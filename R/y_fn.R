@@ -20,18 +20,21 @@
 #' @return Numeric value of cross-validated R-squared
 #' @examples
 #' 
-#' # simulate data with proper format
-#' input <- list(list(Y = cbind(rnorm(50), rnorm(50)), 
-#'                    pred = cbind(rnorm(50), rnorm(50))))
-#' 
-#' # made up weights
-#' y_weight <- c(0.5, 0.5)
-#' 
-#' # linear combination of outcomes
-#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
-#' 
-#' # get risk 
-#' risk <- optim_risk_y_r2(y_weight, input, y_weight_control)
+
+# # simulate data with proper format
+# input <- list(list(Y = cbind(rnorm(50), rnorm(50)), 
+#                    pred = cbind(rnorm(50), rnorm(50))))
+# 
+# # made up weights
+# y_weight <- c(0.5, 0.5)
+# 
+# # linear combination of outcomes
+# y_weight_control <- list(ensemble_fn = "ensemble_linear")
+# 
+# # get risk 
+# risk <- optim_risk_y_r2(y_weight, input, y_weight_control)
+
+#TO DO: Check this example
 
 optim_risk_y_r2 <- function(y_weight, input, y_weight_control){
     # get ensemble of outcomes
@@ -70,7 +73,7 @@ optim_risk_y_r2 <- function(y_weight, input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @importFrom stats qnorm
+#' @importFrom stats qnorm pnorm
 #' @return List with named components cv_measure (cross-validated AUC), ci_low (lower
 #' 100(1 - \code{y_weight_control$alpha})\% CI), ci_high (upper
 #' 100(1 - \code{y_weight_control$alpha})\% CI), p_value (p-value of test of null
@@ -78,19 +81,22 @@ optim_risk_y_r2 <- function(y_weight, input, y_weight_control){
 #' 
 #' @examples
 #' 
-#' # simulate data with proper format
-#' input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
-#'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
-#'                    y_weight = list(weight = c(0.5, 0.5))),
-#'               list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
-#'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
-#'                    y_weight = list(weight = c(0.25, 0.75))))
-#' 
-#' # linear combination of outcomes
-#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
-#' 
-#' # get risk 
-#' cv_risk <- cv_risk_y_auc(input, y_weight_control)
+
+#TO DO: Check this example
+
+# # simulate data with proper format
+# input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
+#                    pred = cbind(runif(50,0,1), runif(50,0,1)),
+#                    y_weight = list(weight = c(0.5, 0.5))),
+#               list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
+#                    pred = cbind(runif(50,0,1), runif(50,0,1)),
+#                    y_weight = list(weight = c(0.25, 0.75))))
+# 
+# # linear combination of outcomes
+# y_weight_control <- list(ensemble_fn = "ensemble_linear")
+# 
+# # get risk 
+# cv_risk <- cv_risk_y_r2(input, y_weight_control)
 
 cv_risk_y_r2 <- function(input, y_weight_control){
     # get ensemble y
@@ -138,7 +144,7 @@ cv_risk_y_r2 <- function(input, y_weight_control){
     ci_high <- 1 - exp(
         log(cv_mse/cv_var) - stats::qnorm(1-(y_weight_control$alpha/2)) * se_1mlog_cv_r2
     )
-    p_value <- pnorm(log(cv_mse/cv_var)/se_1mlog_cv_r2)
+    p_value <- stats::pnorm(log(cv_mse/cv_var)/se_1mlog_cv_r2)
     
     return(list(cv_measure = cv_r2, ci_low = ci_low, ci_high = ci_high, p_value = p_value))
 }
@@ -163,18 +169,21 @@ cv_risk_y_r2 <- function(input, y_weight_control){
 #' @importFrom cvAUC cvAUC
 #' @return Numeric value of cross-validated AUC.
 #' @examples
-#' 
-#' # simulate data with proper format
-#' input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
-#'                    pred = cbind(runif(50,0,1), runif(50,0,1))))
-#' 
-#' # linear combination of outcomes
-#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
-#' 
-#' # get risk 
-#' risk <- optim_risk_y_auc(y_weight, input, y_weight_control)
+#'
+ 
+# # simulate data with proper format
+# input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
+#                    pred = cbind(runif(50,0,1), runif(50,0,1))))
+# 
+# # linear combination of outcomes
+# y_weight_control <- list(ensemble_fn = "ensemble_linear")
+# 
+# # get risk 
+# risk <- optim_risk_y_auc(y_weight, input, y_weight_control)
 
+# TO DO: Check this example
 # TO DO : test that this works
+
 optim_risk_y_auc <- function(y_weight, input, y_weight_control){
     ens_y <- lapply(input, function(i){
         do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = i$Y))
@@ -204,8 +213,8 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' names of the list; however, the names are necessary for \code{print} methods to 
 #' work properly.
 #' 
-#' In this case, the confidence intervals are computed using the \code{\link[cvAUC]{cvAUC.ci}}
-#' function from the \code{\link[cvAUC]{cvAUC}} package. The p-value
+#' In this case, the confidence intervals are computed using the \code{\link[cvAUC::cvAUC.ci]{cvAUC.ci}}
+#' function from the \code{\link[cvAUC::cvAUC]{cvAUC}} package. The p-value
 #' is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 #' the alternative that it is greater than 0.5.  
 #' 
@@ -216,6 +225,7 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
 #' @importFrom cvAUC ci.cvAUC
+#' @importFrom stats pnorm
 #' @return List with named components cv_measure (cross-validated AUC), ci_low (lower
 #' 100(1 - \code{y_weight_control$alpha})\% CI), ci_high (upper
 #' 100(1 - \code{y_weight_control$alpha})\% CI), p_value (p-value of test of null
@@ -223,19 +233,22 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' 
 #' @examples
 #' 
-#' # simulate data with proper format
-#' input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
-#'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
-#'                    y_weight = list(weight = c(0.5, 0.5))),
-#'               list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
-#'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
-#'                    y_weight = list(weight = c(0.25, 0.75))))
-#' 
-#' # linear combination of outcomes
-#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
-#' 
-#' # get risk 
-#' cv_risk <- cv_risk_y_auc(input, y_weight_control)
+ 
+# # simulate data with proper format
+# input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
+#                    pred = cbind(runif(50,0,1), runif(50,0,1)),
+#                    y_weight = list(weight = c(0.5, 0.5))),
+#               list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
+#                    pred = cbind(runif(50,0,1), runif(50,0,1)),
+#                    y_weight = list(weight = c(0.25, 0.75))))
+# 
+# # linear combination of outcomes
+# y_weight_control <- list(ensemble_fn = "ensemble_linear")
+# 
+# # get risk 
+# cv_risk <- cv_risk_y_auc(input, y_weight_control)
+
+#TO DO: Check this example
 
 cv_risk_y_auc <- function(input, y_weight_control){
     ens_y <- lapply(input, function(i){
@@ -249,7 +262,7 @@ cv_risk_y_auc <- function(input, y_weight_control){
     }
     cv_auc_fit <- cvAUC::ci.cvAUC(ens_p, ens_y, confidence = 1 - y_weight_control$alpha)
     # p-value of one-sided test that cvAUC = 0.5 vs. cvAUC > 0.5
-    p_value <- pnorm((cv_auc_fit$cvAUC - 0.5) / cv_auc_fit$se, lower.tail = FALSE)
+    p_value <- stats::pnorm((cv_auc_fit$cvAUC - 0.5) / cv_auc_fit$se, lower.tail = FALSE)
     out <- list(cv_measure = cv_auc_fit$cvAUC, ci_low = cv_auc_fit$ci[1],
                 ci_high = cv_auc_fit$ci[2], p_value = p_value)
     return(out)

@@ -32,12 +32,5 @@ In this case, the function uses \code{\link[Rsolnp]{solnp}} to minimize
 }
 \examples{
 
-# simulate data with proper format
-input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
-# linear ensemble minimizing mean squared-error
-sl_control <- list(ensemble_fn = "ensemble_linear",
-                   optim_risk_fn = "optim_risk_sl_mse")
-# get weights to minimize optim_risk
-sl_weight <- weight_sl_convex(input, sl_control)
 
 }

@@ -1,8 +1,3 @@
-devtools::document("~/Dropbox/R/cvma")
-install.packages("~/Dropbox/R/cvma/", repos = NULL, type = "source")
-q("no")
-
-
 # example with nonparametric R^2
 set.seed(1234)
 library(SuperLearner)

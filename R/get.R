@@ -141,7 +141,6 @@ get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learn
 #' @param V Number of outer folds of cross-validation (nested cross-validation
 #' uses V-1 and V-2 folds), so must be at least four. 
 #' @param all_fits A list of all learner fits (from \code{get_fit})
-#' @param all_sl A list of all super learner fits (from \code{get_sl})
 #' @param all_fit_tasks A list of all learner fitting tasks (quicker to search over
 #' than \code{all_fits}). 
 #' @param return_learner_fits Should the \code{fit} component of the learners

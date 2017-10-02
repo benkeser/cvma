@@ -1,5 +1,5 @@
 #' Helper function to make a task list for computing the outer super learner
-#' @keyword internal
+#' @keywords internal
 make_outer_sl_task_list <- function(Ynames, V){
     all_training <- 1:V
     out <- sapply(Ynames, function(y){
@@ -10,20 +10,20 @@ make_outer_sl_task_list <- function(Ynames, V){
 }
 
 #' Helper function to make a task list for computing outcome weights
-#' @keyword internal 
+#' @keywords internal 
 make_y_weight_task_list <- function(V){
-    out <- combn(V, V-1, FUN = function(x){
+    out <- utils::combn(V, V-1, FUN = function(x){
         return(list(training_folds = x))
     }, simplify = FALSE)
     return(out)
 }
 #' Helper function to make a task list for computing super learners
-#' @keyword internal
+#' @keywords internal
 make_sl_task_list <- function(Ynames, V, fold_fits = c(V-1, V-2)){
     # get super learner fit on all 1-way hold-outs and 2-way hold-outs
     all_training <- NULL
     for(v in fold_fits){
-        all_training <- c(all_training, combn(V, v, simplify = FALSE))
+        all_training <- c(all_training, utils::combn(V, v, simplify = FALSE))
     }
     full_param <- expand.grid(training_folds = all_training, 
                               Yname = Ynames)
@@ -34,7 +34,7 @@ make_sl_task_list <- function(Ynames, V, fold_fits = c(V-1, V-2)){
     return(out)   
 }
 #' Helper function to make a task list for computing learner fits
-#' @keyword internal
+#' @keywords internal
 make_fit_task_list <- function(Ynames, learners, V, return_outer_sl,
                                fold_fits = NULL){
     out <- list()
@@ -46,7 +46,7 @@ make_fit_task_list <- function(Ynames, learners, V, return_outer_sl,
         fold_fits <- c(V, fold_fits)
     }
     for(v in fold_fits){
-        com <- combn(V, v, simplify = FALSE)
+        com <- utils::combn(V, v, simplify = FALSE)
         full_param <- expand.grid(SL_wrap = learners,
                                   com = com,
                                   Yname = Ynames)

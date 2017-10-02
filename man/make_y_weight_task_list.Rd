@@ -9,3 +9,4 @@ make_y_weight_task_list(V)
 \description{
 Helper function to make a task list for computing outcome weights
 }
+\keyword{internal}

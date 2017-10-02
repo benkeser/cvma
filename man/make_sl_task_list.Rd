@@ -9,3 +9,4 @@ make_sl_task_list(Ynames, V, fold_fits = c(V - 1, V - 2))
 \description{
 Helper function to make a task list for computing super learners
 }
+\keyword{internal}

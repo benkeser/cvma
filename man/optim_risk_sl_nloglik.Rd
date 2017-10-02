@@ -25,20 +25,6 @@ from \code{learner} and columns correspond to different \code{leaner}s).}
 }
 \value{
 Numeric value of cross-validated negative log-likelihood
-
-# simulate data with proper format
-# Y is one component of the multivariate outcome
-# pred is the predictions made by learners 
-input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
-
-# made up weights
-sl_weight <- c(0.5, 0.5)
-# linear ensemble
-sl_control <- list(ensemble_fn = "ensemble_linear")
-# get risk setting l and u to min and max
-# observed Y 
-all_y <- unlist(lapply(input,"[",1))
-risk <- optim_risk_sl_nloglik(sl_weight, input, l = min(all_y), u = max(all_y))
 }
 \description{
 In general, the function passed to \code{sl_control$optim_risk} should expect a named list

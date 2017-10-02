@@ -33,7 +33,7 @@ get_y_weight_input <- function(split_Y, Ynames,
         training_folds <- 1:V
     }
     # then we need to get fits for columns of this guy
-    train_matrix <- combn(training_folds, V - (length(valid_folds) + 1))
+    train_matrix <- utils::combn(training_folds, V - (length(valid_folds) + 1))
     # valid_folds <- training_folds[-which(training_folds %in% training_folds)]
     # need to search_fits_for_training_folds, but now for all Y
     # also need to search_sl_for_training_folds
@@ -96,7 +96,7 @@ get_sl_input <- function(split_Y, Yname, valid_folds,
     }
     # gives a matrix whose columns correspond to the folds used 
     # to train each of the candidate 
-    learner_training_folds <- combn(sl_training_folds, V - (length(valid_folds) + 1))
+    learner_training_folds <- utils::combn(sl_training_folds, V - (length(valid_folds) + 1))
 
     # find indexes corresponding to these training sets
     # each column corresponds to the indexes where the corresponding
@@ -149,6 +149,7 @@ get_sl_input <- function(split_Y, Yname, valid_folds,
 #' @param V Number of folds.
 #' @param learners Vector of super learner vectors.
 #' @param sl_control List of super learner controls.
+#' @param folds Cross-validation folds.
 #' 
 #' @return List with each entry a list with entries: valid_fold (the number of the
 #' corresponding fold), Y (univariate outcome in this validation fold), pred (matrix
@@ -160,7 +161,7 @@ get_sl_input <- function(split_Y, Yname, valid_folds,
 get_risk_sl_input <- function(split_Y, Yname, all_fits, learners, V,
                               folds, all_sl, all_fit_tasks, all_weight, sl_control){
     # we need to get sl fit for this guy
-    train_matrix <- combn(V, V-1)
+    train_matrix <- utils::combn(V, V-1)
 
     pred_list <- lapply(split(train_matrix, col(train_matrix)), get_sl_pred_out, 
                     Ynames = Yname, outer_valid_folds = NULL, V = V,
@@ -214,7 +215,7 @@ get_risk_input <- function(split_Y, Ynames, all_fits,
                            V, learners, 
                            all_sl, all_fit_tasks, all_weight, sl_control){
     # we need to get sl fit for this guy
-    train_matrix <- combn(V, V-1)
+    train_matrix <- utils::combn(V, V-1)
 
     # need to search_fits_for_training_folds, but now for all Y
     # also need to search_sl_for_training_folds

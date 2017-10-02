@@ -42,17 +42,4 @@ the alternative that it is greater than zero.
 }
 \examples{
 
-# simulate data with proper format
-input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
-                   pred = cbind(runif(50,0,1), runif(50,0,1)),
-                   y_weight = list(weight = c(0.5, 0.5))),
-              list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
-                   pred = cbind(runif(50,0,1), runif(50,0,1)),
-                   y_weight = list(weight = c(0.25, 0.75))))
-
-# linear combination of outcomes
-y_weight_control <- list(ensemble_fn = "ensemble_linear")
-
-# get risk 
-cv_risk <- cv_risk_y_auc(input, y_weight_control)
 }

@@ -2,14 +2,12 @@
 #' element of the \code{fit$pred} list will have a name
 #' corresponding to the validation fold the predictions
 #' were obtained on. 
-#' 
-#' @keywords internal
+#' @keywords internal 
 get_valid_pred_from_fit <- function(fit, valid_folds){
     unlist(fit$pred[as.character(valid_folds)])
 }
 
 #' Helper function to get validation fold outcomes. 
-#' 
 #' @keywords internal
 get_valid_y <- function(split_Y, valid_folds){
     split_Y[as.character(valid_folds)]
@@ -27,7 +25,6 @@ get_fold_vector <- function(valid_y){
 
 #' Helper function to get outcomes in proper format needed
 #' for some of the \code{get_} functions. 
-#' 
 #' @keywords internal 
 get_Y_out <- function(x, split_Y, training_folds, V = NULL){
     if(!is.null(training_folds)){
@@ -41,7 +38,6 @@ get_Y_out <- function(x, split_Y, training_folds, V = NULL){
 
 #' Helper function to format the validation folds used in
 #' some of the \code{get_} functions
-#' 
 #' @keywords internal 
 get_fold_out <- function(x, split_Y, training_folds, valid_folds = NULL, V = NULL){
     if(!is.null(x)){
@@ -60,8 +56,7 @@ get_fold_out <- function(x, split_Y, training_folds, valid_folds = NULL, V = NUL
 
 #' Helper function to get learner prediction matrices formatted
 #' properly. 
-#' 
-#' @keywords internal
+#' @keywords internal 
 get_pred_out <- function(fit_idx, learner_folds = NULL, sl_folds = NULL, 
                          all_fits, valid_folds = NULL, learners){
     if(!is.null(learner_folds)){
@@ -76,7 +71,6 @@ get_pred_out <- function(fit_idx, learner_folds = NULL, sl_folds = NULL,
 }
 
 #' Helper function to get super learner predictions formatted properly.
-#' 
 #' @keywords internal 
 get_sl_pred_out <- function(sl_training_folds, Ynames, outer_valid_folds, 
                             all_fit_tasks, all_fits, all_sl, learners, 

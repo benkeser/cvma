@@ -9,3 +9,4 @@ make_fit_task_list(Ynames, learners, V, return_outer_sl, fold_fits = NULL)
 \description{
 Helper function to make a task list for computing learner fits
 }
+\keyword{internal}

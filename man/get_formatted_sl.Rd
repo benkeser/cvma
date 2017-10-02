@@ -30,8 +30,6 @@ cv_risk_fn, family. Available functions can be viewed with \code{sl_control_opti
 be returned. Must be \code{TRUE} to obtain later predictions.}
 
 \item{learners}{Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.}
-
-\item{all_sl}{A list of all super learner fits (from \code{get_sl})}
 }
 \value{
 Named list of super learner results.

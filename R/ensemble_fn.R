@@ -21,13 +21,15 @@ ensemble_linear <- function(pred, weight){
 }
 
 #' Helper function to compute a trimmed logit
-#' @keywords internal 
+#' @keywords internal
+#' @importFrom stats qlogis
+
 trim_qlogis <- function(p, trim = 1e-4){
-    return(qlogis(trim_p(p, trim = trim)))
+    return(stats::qlogis(trim_p(p, trim = trim)))
 }
 
 #' Helper function to trim a prediction
-#' @keywords internal 
+#' @keywords internal
 trim_p <- function(p, trim = 1e-4){
     p[p < trim] <- trim; p[p > 1 - trim] <- 1 - trim
     return(p)
@@ -54,13 +56,14 @@ trim_p <- function(p, trim = 1e-4){
 #' @return A vector of ensembled values with length equal to the number of 
 #' rows of \code{pred}. 
 #' @export
+#' @importFrom stats plogis
 ensemble_logit_linear <- function(pred, weight, l = 0, u = 1, 
                              trim = 0.001){
     nonzero_idx <- weight != 0 
     scale_pred <- (pred - l)/(u - l)
     logit_scale_pred <- trim_qlogis(scale_pred, trim = trim)
     lin_pred <- tcrossprod(weight[nonzero_idx, ], logit_scale_pred[ , nonzero_idx, drop = FALSE])
-    out <- plogis(lin_pred)*(u - l) + l
+    out <- stats::plogis(lin_pred)*(u - l) + l
     return(as.numeric(out))
 }
 

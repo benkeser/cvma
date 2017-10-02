@@ -30,13 +30,4 @@ for \code{y_weight_control$optim_risk} functions.
 }
 \examples{
 
-# simulate data with proper format
-input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
-                   pred = cbind(runif(50,0,1), runif(50,0,1))))
-
-# linear combination of outcomes
-y_weight_control <- list(ensemble_fn = "ensemble_linear")
-
-# get risk 
-risk <- optim_risk_y_auc(y_weight, input, y_weight_control)
 }
