@@ -43,9 +43,58 @@ In the future, the package will be available from [CRAN](https://cran.r-project.
 install.packages("cvma")
 ```
 
-## Use
+##Issues
 
-TO DO : Add usage section
+If you encounter any bugs or have any specific feature requests, please [file an issue](https://github.com/benkeser/cvma/issues).
+
+## Example
+
+This minimal example shows how to use `cvma` with very simple, simulated data set. To start with, we use the nonparametric R^2 to evaluate the strength of association between a set of variables and a multivariate outcome:
+
+```{r nonparametric R^2}
+suppressMessages(library(cvma))
+set.seed(1234)
+
+#Simulate data:
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rnorm(100, X$x1 + X$x2, 1)
+Y2 <- rnorm(100, X$x1 + X$x2, 3)
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+
+#cvma with nonparametric R^2:
+fit <- cvma(Y = Y, X = X, V = 10, 
+                learners = c("SL.glm","SL.mean"))
+
+```
+
+The following example evaluates the strength of association using AUC:
+
+```{r AUC}
+suppressMessages(library(cvma))
+set.seed(1234)
+
+#Simulate data:
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1 + 0.2*X$x2))
+Y2 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1))
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+
+#cvma with AUC:
+fit <- cvma(Y = Y, X = X, V = 5, 
+                learners = c("SL.glm","SL.mean"),
+                sl_control = list(ensemble_fn = "ensemble_linear",
+                                   optim_risk_fn = "optim_risk_sl_nloglik",
+                                   weight_fn = "weight_sl_convex",
+                                   cv_risk_fn = "cv_risk_sl_auc",
+                                   family = binomial(),
+                                   alpha = 0.05),
+                y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                  weight_fn = "weight_y_01",
+                                  optim_risk_fn = "optim_risk_y_auc",
+                                  cv_risk_fn = "cv_risk_y_auc",
+                                  alpha = 0.05))
+
+```
 
 ## Variable importance
 
