@@ -31,6 +31,8 @@
 #' @seealso predict method 
 #' 
 #' @importFrom future future_lapply
+#' @importFrom stats gaussian
+#' @import SuperLearner 
 #' 
 #' @examples
 #' set.seed(1234)

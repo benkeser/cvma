@@ -5,7 +5,7 @@
 \title{Get cross-validated risk of the super learner for a univariate outcome}
 \usage{
 get_risk_sl(task, Y, V, all_sl, all_fit_tasks, all_fits, folds, sl_control,
-  learners)
+  learners, all_weight)
 }
 \arguments{
 \item{task}{A named list identifying what training folds to use to 
@@ -30,6 +30,8 @@ cv_risk_fn, family. Available functions can be viewed with \code{sl_control_opti
 \code{?sl_control_options} for more on how users may supply their own functions.}
 
 \item{learners}{Super learner wrappers. See \code{SuperLearner::listWrappers}.}
+
+\item{all_weight}{List of all outcome weight fits.}
 }
 \value{
 Named list identifying which outcome and the cross-validated risk of the super learner.

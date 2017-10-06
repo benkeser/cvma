@@ -214,10 +214,12 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
 #' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
+#' @param all_weight List of all outcome weight fits.
+#' 
 #' @return Named list identifying which outcome and the cross-validated risk of the super learner. 
 
 get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds, 
-                        sl_control, learners){
+                        sl_control, learners, all_weight){
     split_Y <- split(Y[ , task$Yname], folds)
     
     if(!all(1:V %in% task$training_folds)){

@@ -349,7 +349,8 @@ weight_sl_01 <- function(input, sl_control){
         y_weight <- rep(0, M)
         y_weight[m] <- 1
         risks[m] <- do.call(sl_control$optim_risk_fn, 
-                            args = list(weight_y = weight_y, 
+                            #Checkkkk weight_y vs. y_weight
+                            args = list(weight_y = y_weight, 
                                         input = risk_input, 
                                         sl_control = sl_control))    
     }
