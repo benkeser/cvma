@@ -7,7 +7,7 @@ R/`cvma`
 
 > Machine learning-based summary of association with multivariate outcomes
 
-**Authors:** [David Benkeser](https://www.benkeserstatistics.com/) and Ivana Malenica (<https://github.com/podTockom>)
+**Authors:** [David Benkeser](https://www.benkeserstatistics.com/) and [Ivana Malenica](https://github.com/podTockom)
 
 Introduction
 ------------

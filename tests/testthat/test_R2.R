@@ -25,6 +25,4 @@ Y <- data.frame(Y1 = Y1, Y2 = Y2)
 fit <- cvma(Y = Y, X = X, V = 10, 
             learners = c("SL.glm","SL.mean"))
 
-test_that("NP R^2 CV Measure", expect_equal(fit$cv_assoc$cv_measure, 0.7648338, tolerance = 0.01))
-
-
+test_that("Nonparametric R^2", expect_equal(fit$cv_assoc$cv_measure, 0.7648338, tolerance = 0.01))

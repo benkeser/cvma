@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 > Machine learning-based summary of association with multivariate outcomes
 
-__Authors:__ [David Benkeser](https://www.benkeserstatistics.com/) and Ivana Malenica (https://github.com/podTockom)
+__Authors:__ [David Benkeser](https://www.benkeserstatistics.com/) and [Ivana Malenica](https://github.com/podTockom)
 
 ## Introduction
 
