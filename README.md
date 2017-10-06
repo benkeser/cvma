@@ -7,7 +7,7 @@ R/`cvma`
 
 > Machine learning-based summary of association with multivariate outcomes
 
-**Authors:** [David Benkeser](https://www.benkeserstatistics.com/) and Ivana Malenica
+**Authors:** [David Benkeser](https://www.benkeserstatistics.com/) and Ivana Malenica (<https://github.com/podTockom>)
 
 Introduction
 ------------
@@ -41,8 +41,6 @@ This minimal example shows how to use `cvma` with very simple, simulated data se
 
 ``` r
 suppressMessages(library(cvma))
-#> Warning: package 'SuperLearner' was built under R version 3.4.1
-#> Warning: package 'future' was built under R version 3.4.1
 set.seed(1234)
 
 #Simulate data:

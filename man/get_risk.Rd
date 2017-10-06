@@ -32,7 +32,7 @@ cv_risk_fn, family. Available functions can be viewed with \code{sl_control_opti
 cv_risk_fn. Available functions can be viewed with \code{y_weight_control_options()}. See
 \code{?y_weight_control_options} for more on how users may supply their own functions.}
 
-\item{learners}{Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.}
+\item{learners}{Super learner wrappers. See \code{SuperLearner::listWrappers}.}
 }
 \value{
 Numeric risk value

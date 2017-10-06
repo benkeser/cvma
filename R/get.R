@@ -58,7 +58,7 @@ get_fit <- function(task, folds, X, Y, sl_control){
 #' cv_risk_fn. Available functions can be viewed with \code{y_weight_control_options()}. See
 #' \code{?y_weight_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
-#' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
 #' 
 #' @return Named list identifying training folds used and the composite outcome weights. 
 
@@ -103,7 +103,7 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
-#' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
 #' 
 #' @return Named list identifying training folds used and the composite outcome weights. 
 #' 
@@ -149,7 +149,7 @@ get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learn
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
-#' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
 #' @return Named list of super learner results. 
 
 get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, 
@@ -213,7 +213,7 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
-#' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
 #' @return Named list identifying which outcome and the cross-validated risk of the super learner. 
 
 get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds, 
@@ -252,7 +252,7 @@ get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds,
 #' cv_risk_fn. Available functions can be viewed with \code{y_weight_control_options()}. See
 #' \code{?y_weight_control_options} for more on how users may supply their own functions.  
 #' @param folds Vector identifying which fold observations fall into. 
-#' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
 #' 
 #' @return Numeric risk value 
 

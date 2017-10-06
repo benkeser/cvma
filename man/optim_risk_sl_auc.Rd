@@ -29,7 +29,7 @@ for \code{sl_control$optim_risk} functions.
 }
 \details{
 In this case, the function computes cross-validated area under the receiver operating
-characteristics curve (AUC) using \code{\link[cvAUC]{cvAUC}}. 
+characteristics curve (AUC) using \code{cvAUC}. 
 scaled to be between 0 and 1. The option \code{trim} must be a value greater than
 zero in order that the loss is bounded. The bounds on the outcome are set via
 \code{l} and \code{u}.

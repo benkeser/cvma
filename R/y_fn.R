@@ -213,8 +213,8 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' names of the list; however, the names are necessary for \code{print} methods to 
 #' work properly.
 #' 
-#' In this case, the confidence intervals are computed using the \code{\link[cvAUC::cvAUC.ci]{cvAUC.ci}}
-#' function from the \code{\link[cvAUC::cvAUC]{cvAUC}} package. The p-value
+#' In this case, the confidence intervals are computed using the \code{cvAUC::cvAUC.ci}
+#' function from the \code{cvAUC::cvAUC} package. The p-value
 #' is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 #' the alternative that it is greater than 0.5.  
 #' 
@@ -278,7 +278,7 @@ cv_risk_y_auc <- function(input, y_weight_control){
 #' are passed on to \code{y_weight_control$cv_risk_fn} (e.g., things needed to compute
 #' cross-validated measure of association).
 #' 
-#' In this case, the function uses \code{\link[Rsolnp]{solnp}} to minimize 
+#' In this case, the function uses \code{Rsolnp::solnp} to minimize 
 #' \code{y_weight_control$optim_risk_fn} 
 #' over convex weights. In addition to the optimized weights, the function
 #' returns the marginal mean of the composite outcome based on the optimized weights, 

@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 > Machine learning-based summary of association with multivariate outcomes
 
-__Authors:__ [David Benkeser](https://www.benkeserstatistics.com/) and Ivana Malenica
+__Authors:__ [David Benkeser](https://www.benkeserstatistics.com/) and Ivana Malenica (https://github.com/podTockom)
 
 ## Introduction
 
@@ -50,6 +50,10 @@ If you encounter any bugs or have any specific feature requests, please [file an
 ## Example
 
 This minimal example shows how to use `cvma` with very simple, simulated data set. To start with, we use the nonparametric R^2 to evaluate the strength of association between a set of variables and a multivariate outcome:
+
+```{r, echo=FALSE}
+options(warn=-1)
+```
 
 ```{r nonparametric R^2}
 suppressMessages(library(cvma))

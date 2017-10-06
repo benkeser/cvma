@@ -29,7 +29,7 @@ cv_risk_fn, family. Available functions can be viewed with \code{sl_control_opti
 \item{return_learner_fits}{Should the \code{fit} component of the learners
 be returned. Must be \code{TRUE} to obtain later predictions.}
 
-\item{learners}{Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.}
+\item{learners}{Super learner wrappers. See \code{SuperLearner::listWrappers}.}
 }
 \value{
 Named list of super learner results.

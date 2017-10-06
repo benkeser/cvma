@@ -33,8 +33,8 @@ names of the list; however, the names are necessary for \code{print} methods to
 work properly.
 }
 \details{
-In this case, the confidence intervals are computed using the \code{\link[cvAUC::cvAUC.ci]{cvAUC.ci}}
-function from the \code{\link[cvAUC::cvAUC]{cvAUC}} package. The p-value
+In this case, the confidence intervals are computed using the \code{cvAUC::cvAUC.ci}
+function from the \code{cvAUC::cvAUC} package. The p-value
 is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 the alternative that it is greater than 0.5.
 }

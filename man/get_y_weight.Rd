@@ -35,7 +35,7 @@ cv_risk_fn. Available functions can be viewed with \code{y_weight_control_option
 
 \item{folds}{Vector identifying which fold observations fall into.}
 
-\item{learners}{Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.}
+\item{learners}{Super learner wrappers. See \code{SuperLearner::listWrappers}.}
 }
 \value{
 Named list identifying training folds used and the composite outcome weights.

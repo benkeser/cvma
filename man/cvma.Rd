@@ -20,7 +20,7 @@ cvma(Y, X, V = 5, learners, sl_control = list(ensemble_fn =
 \item{V}{Number of outer folds of cross-validation (nested cross-validation
 uses V-1 and V-2 folds), so must be at least four.}
 
-\item{learners}{Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.}
+\item{learners}{Super learner wrappers. See \code{SuperLearner::listWrappers}.}
 
 \item{sl_control}{A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
 cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
@@ -44,7 +44,9 @@ column of \code{Y}.}
 TO DO : Add return values
 }
 \description{
-TO DO: Add a description here. 
+TO DO: Add a description here.
+}
+\details{
 TO DO: Figure out how future works (e.g., can plan() be specified internally
 or externally?)
 }

@@ -1,6 +1,9 @@
 #' Cross-validated maximal association measures
 #' 
-#' TO DO: Add a description here. 
+#' TO DO: Add a description here.
+#' 
+#'  
+#'    
 #' TO DO: Figure out how future works (e.g., can plan() be specified internally
 #' or externally?)
 #' 
@@ -8,7 +11,7 @@
 #' @param X A matrix or data.frame of predictors
 #' @param V Number of outer folds of cross-validation (nested cross-validation
 #' uses V-1 and V-2 folds), so must be at least four. 
-#' @param learners Super learner wrappers. See \code{\link{SuperLearner::listWrappers}}.
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
 #' @param sl_control A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  

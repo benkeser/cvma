@@ -111,7 +111,7 @@ optim_risk_sl_nloglik <- function(sl_weight, input, sl_control,
 #' for \code{sl_control$optim_risk} functions. 
 #' 
 #' In this case, the function computes cross-validated area under the receiver operating
-#' characteristics curve (AUC) using \code{\link[cvAUC]{cvAUC}}. 
+#' characteristics curve (AUC) using \code{cvAUC}. 
 #' scaled to be between 0 and 1. The option \code{trim} must be a value greater than
 #' zero in order that the loss is bounded. The bounds on the outcome are set via
 #' \code{l} and \code{u}. 
@@ -227,14 +227,14 @@ cv_risk_sl_r2 <- function(input, sl_control){
 #' is returned irrespective of the names of the list; however, the names are 
 #' necessary for \code{print} methods to work properly.
 #' 
-#' In this case, the confidence intervals are computed using the \code{\link{cvAUC.ci}}
-#' function from the \code{\link{cvAUC}} package. The p-value
+#' In this case, the confidence intervals are computed using the \code{cvAUC::cvAUC.ci}
+#' function from the \code{cvAUC} package. The p-value
 #' is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 #' the alternative that it is greater than 0.5.  
 #' 
 #' @param input List where each entry corresponds to a validation fold. Each entry is a list
 #' with entries: Y (univariate outcome for this validation fold), pred (matrix of predictions
-#' from \code{learner} and columns correspond to different \code{leaner}s). 
+#' from \code{learner} and columns correspond to different \code{learner}). 
 #' @param sl_control List of super learner control options. 
 #' 
 cv_risk_sl_auc <- function(input, sl_control){
@@ -254,12 +254,12 @@ cv_risk_sl_auc <- function(input, sl_control){
 #' cross-validated measure of association, though none are present for this particular 
 #' function).
 #'
-#' In this case, the function uses \code{\link[Rsolnp]{solnp}} to minimize 
+#' In this case, the function uses \code{Rsolnp::solnp} to minimize 
 #' \code{sl_control$optim_risk_fn} over convex weights.
 #'  
 #' @param input A list where each entry corresponds to a validation fold. Each entry is a list
 #' with entries: Y (univariate outcome for this validation fold), pred (matrix of predictions
-#' from \code{learner} and columns correspond to different \code{leaner}s). 
+#' from \code{learner} and columns correspond to different \code{learner}). 
 #' @param sl_control Super learner control options. 
 #' 
 #' @examples

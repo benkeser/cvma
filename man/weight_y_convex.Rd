@@ -29,7 +29,7 @@ are passed on to \code{y_weight_control$cv_risk_fn} (e.g., things needed to comp
 cross-validated measure of association).
 }
 \details{
-In this case, the function uses \code{\link[Rsolnp]{solnp}} to minimize 
+In this case, the function uses \code{Rsolnp::solnp} to minimize 
 \code{y_weight_control$optim_risk_fn} 
 over convex weights. In addition to the optimized weights, the function
 returns the marginal mean of the composite outcome based on the optimized weights, 

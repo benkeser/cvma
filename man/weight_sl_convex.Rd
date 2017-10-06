@@ -9,7 +9,7 @@ weight_sl_convex(input, sl_control)
 \arguments{
 \item{input}{A list where each entry corresponds to a validation fold. Each entry is a list
 with entries: Y (univariate outcome for this validation fold), pred (matrix of predictions
-from \code{learner} and columns correspond to different \code{leaner}s).}
+from \code{learner} and columns correspond to different \code{learner}).}
 
 \item{sl_control}{Super learner control options.}
 }
@@ -27,7 +27,7 @@ cross-validated measure of association, though none are present for this particu
 function).
 }
 \details{
-In this case, the function uses \code{\link[Rsolnp]{solnp}} to minimize 
+In this case, the function uses \code{Rsolnp::solnp} to minimize 
 \code{sl_control$optim_risk_fn} over convex weights.
 }
 \examples{

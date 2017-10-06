@@ -1,8 +1,17 @@
+^\.git$
+^\.git/*
+^\.gitignore$
 ^max_assoc\.Rproj$
+^.*\.Rproj$
+^\README\.md$
+^\.Rproj\.user$
+
+# Automated testing files.
 ^\.travis\.yml$
 ^appveyor\.yml$
-^\.gitignore$
-^\README\.md$
-^\.git$
+^codecov\.yml$
+
+# other miscellaneous non-CRAN files
 ^docs$
-^\.Rproj\.user$
+^README\.Rmd$
+^Makefile$
