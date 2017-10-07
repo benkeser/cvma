@@ -2,11 +2,11 @@
 % Please edit documentation in R/task_lists.R
 \name{make_sl_task_list}
 \alias{make_sl_task_list}
-\title{Helper function to make a task list for computing super learners}
+\title{Helper function to make a task list for computing super learners.}
 \usage{
 make_sl_task_list(Ynames, V, fold_fits = c(V - 1, V - 2))
 }
 \description{
-Helper function to make a task list for computing super learners
+Helper function to make a task list for computing super learners.
 }
 \keyword{internal}

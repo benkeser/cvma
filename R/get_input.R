@@ -111,7 +111,9 @@ get_sl_input <- function(split_Y, Yname, valid_folds,
     # let's assume that the method for obtaining weights will want an input
     # of Y, Y_hat (matrix from learners), and fold
 
-    # need to put together matrix of predictions from learners
+    # need to put together matrix of predictions from learners.
+    
+    #Get actual outcome sorted by validation folds.
     Y_out <- lapply(split(learner_training_folds, col(learner_training_folds)), 
                     get_Y_out, split_Y = split_Y, 
                     training_folds = sl_training_folds)

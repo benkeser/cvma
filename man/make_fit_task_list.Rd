@@ -2,11 +2,11 @@
 % Please edit documentation in R/task_lists.R
 \name{make_fit_task_list}
 \alias{make_fit_task_list}
-\title{Helper function to make a task list for computing learner fits}
+\title{Helper function to make a task list for computing learner fits.}
 \usage{
 make_fit_task_list(Ynames, learners, V, return_outer_sl, fold_fits = NULL)
 }
 \description{
-Helper function to make a task list for computing learner fits
+Helper function to make a task list for computing learner fits.
 }
 \keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.R
 \name{get_sl}
 \alias{get_sl}
-\title{Get super learner weights based on cross-validated learner fits}
+\title{Get super learner weights based on cross-validated learner fits.}
 \usage{
 get_sl(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learners)
 }
@@ -32,5 +32,5 @@ cv_risk_fn, family. Available functions can be viewed with \code{sl_control_opti
 Named list identifying training folds used and the composite outcome weights.
 }
 \description{
-Get super learner weights based on cross-validated learner fits
+Get super learner weights based on cross-validated learner fits.
 }

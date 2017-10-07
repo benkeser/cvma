@@ -25,6 +25,8 @@
 #' layer (i.e., V-fold super learner).
 #' @param return_all_y Whether to return cross-validated performance measures for each
 #' column of \code{Y}. 
+#' @param scale Standardize each outcome to be mean zero with standard deviation 1.
+#' 
 #' @return TO DO : Add return values
 #' @export
 #' 
@@ -60,25 +62,34 @@ cvma <- function(Y, X, V = 5, learners,
                                   alpha = 0.05),
                       return_outer_weight = TRUE,
                       return_outer_sl = TRUE,
-                      return_all_y = TRUE
+                      return_all_y = TRUE,
+                      scale=FALSE
                       ){
     
-    # TO DO: add standardize outcome options
-    #           e.g., scale all outcomes to be mean 0 SD 1
-    #           e.g., scale all multivariate outcome by covariance matrix?
-
     # get initial parameter values
     n <- length(Y[,1])
     J <- ncol(Y)
     M <- length(learners)
-
-    # put Y into the proper format
-    Ymat <- data.matrix(Y)
+    
+    #scale all multivariate outcome by covariance matrix?
+    if(scale){
+      Ymat <- data.frame(scale(Y))
+    }else{
+      # put Y into the proper format
+      Ymat <- data.matrix(Y)
+    }
+    
+    #Checks
+    if(!all(apply(Ymat,2,function(x) { all(x %in% 0:1) })) & sl_control$optim_risk_fn == "optim_risk_sl_auc"){
+      stop("Outcome should be binary")
+      
+    }
 
     # correct names if none
     if(is.null(colnames(Ymat))){
         colnames(Ymat) <- paste0("Y",1:J)
     }
+    
     # TO DO: make_folds function with more options, possibly from origami?
     folds <- rep(seq_len(V), length = n)
     folds <- sample(folds)
@@ -86,7 +97,7 @@ cvma <- function(Y, X, V = 5, learners,
     # all learner fitting tasks
     all_fit_tasks <- make_fit_task_list(Ynames = colnames(Ymat), learners = learners, 
                                         V = V, return_outer_sl = return_outer_sl)
-    # NOTE: could be future_lapply for parallelization
+    
     all_fits <- future::future_lapply(all_fit_tasks, FUN = get_fit, folds = folds, 
                               X = X, Y = Ymat, sl_control = sl_control)
 
@@ -99,8 +110,6 @@ cvma <- function(Y, X, V = 5, learners,
                             Y = Ymat, V = V, all_fit_tasks = all_fit_tasks, 
                             all_fits = all_fits, folds = folds,
                             learners = learners, sl_control = sl_control)
-                            # ensemble_fn = ensemble_fn, risk_sl_control = risk_sl_control, 
-                            # weight_sl_control = weight_sl_control)
 
     # all outcome weight tasks
     all_y_weight_tasks <- make_y_weight_task_list(V = V)

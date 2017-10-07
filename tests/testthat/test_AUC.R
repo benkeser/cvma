@@ -23,7 +23,7 @@ X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
 Y1 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1 + 0.2*X$x2))
 Y2 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1))
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
-fit <- cvma(Y = Y, X = X, V = 5, 
+fit <- cvma(Y = Y, X = X, V = 5, scale=FALSE,
             learners = c("SL.glm","SL.mean"),
             sl_control = list(ensemble_fn = "ensemble_linear",
                               optim_risk_fn = "optim_risk_sl_nloglik",

@@ -32,4 +32,12 @@ returned by \code{sl_control$optim_risk_fn}
 }
 \examples{
 
+#Simulate data and properly format:
+input <- list(list(Y = rbinom(50,1,0.5), pred = cbind(rnorm(50), rnorm(50))))
+
+#Linear ensemble
+sl_control <- list(ensemble_fn = "ensemble_linear", optim_risk_fn = "optim_risk_sl_auc")
+
+#Get weights to minimize optim_risk:
+sl_weight <- weight_sl_01(input, sl_control)
 }
