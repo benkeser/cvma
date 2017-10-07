@@ -69,24 +69,23 @@ optim_risk_sl_se <- function(sl_weight, input, sl_control){
 #' 
 #' @examples
 #' 
+#' #Simulate data with proper format:
+#' #Y is one component of the multivariate outcome, and 
+#' #pred is the predictions made by learners.
+#' input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
+#' 
+#' #Made up weights:
+#' sl_weight <- c(0.5, 0.5)
+#' 
+#' #Linear ensemble:
+#' sl_control <- list(ensemble_fn = "ensemble_linear")
+#' 
+#' #Get risk by setting l and u to min and max:
+#' risk <- optim_risk_sl_nloglik(sl_weight, input, sl_control, l = min(input$Y), u = max(input$Y))
+#' 
+#' 
 #' @return Numeric value of cross-validated negative log-likelihood
 #'
-  
-# # simulate data with proper format
-# # Y is one component of the multivariate outcome
-# # pred is the predictions made by learners 
-# input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
-# 
-# # made up weights
-# sl_weight <- c(0.5, 0.5)
-# # linear ensemble
-# sl_control <- list(ensemble_fn = "ensemble_linear")
-# # get risk setting l and u to min and max
-# # observed Y 
-# all_y <- unlist(lapply(input,"[",1))
-# risk <- optim_risk_sl_nloglik(sl_weight, input, l = min(all_y), u = max(all_y))
-
-# TO DO: Check this example
 
 optim_risk_sl_nloglik <- function(sl_weight, input, sl_control, 
                              l = 0 , u = 1, trim = 0.001){

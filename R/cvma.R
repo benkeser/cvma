@@ -81,9 +81,8 @@ cvma <- function(Y, X, V = 5, learners,
     
     #Checks
     if(!all(apply(Ymat,2,function(x) { all(x %in% 0:1) })) & sl_control$optim_risk_fn == "optim_risk_sl_auc"){
-      stop("Outcome should be binary")
-      
-    }
+      stop("Outcome should be binary.")
+      }
 
     # correct names if none
     if(is.null(colnames(Ymat))){
