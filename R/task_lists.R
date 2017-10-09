@@ -17,7 +17,7 @@ make_y_weight_task_list <- function(V){
     }, simplify = FALSE)
     return(out)
 }
-#' Helper function to make a task list for computing super learners
+#' Helper function to make a task list for computing super learners.
 #' @keywords internal
 make_sl_task_list <- function(Ynames, V, fold_fits = c(V-1, V-2)){
     # get super learner fit on all 1-way hold-outs and 2-way hold-outs
@@ -33,7 +33,7 @@ make_sl_task_list <- function(Ynames, V, fold_fits = c(V-1, V-2)){
     })
     return(out)   
 }
-#' Helper function to make a task list for computing learner fits
+#' Helper function to make a task list for computing learner fits.
 #' @keywords internal
 make_fit_task_list <- function(Ynames, learners, V, return_outer_sl,
                                fold_fits = NULL){

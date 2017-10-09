@@ -89,7 +89,7 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
     return(out)
 }
 
-#' Get super learner weights based on cross-validated learner fits
+#' Get super learner weights based on cross-validated learner fits.
 #' 
 #' @param task A named list identifying what training folds to use to 
 #' obtain outcome weights. 
@@ -115,6 +115,7 @@ get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learn
         valid_folds <- NULL
     }
     # get input needed to compute sl ensemble weights 
+    #Returns validation fold, actual Y outcome, and predicted Y outcome for each learner
     input <- get_sl_input(split_Y = split_Y, valid_folds = valid_folds,
                           Yname = task$Yname, V = V, all_fit_tasks = all_fit_tasks, 
                           all_fits = all_fits, learners = learners)

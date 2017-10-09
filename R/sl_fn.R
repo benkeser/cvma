@@ -69,24 +69,23 @@ optim_risk_sl_se <- function(sl_weight, input, sl_control){
 #' 
 #' @examples
 #' 
+#' #Simulate data with proper format:
+#' #Y is one component of the multivariate outcome, and 
+#' #pred is the predictions made by learners.
+#' input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
+#' 
+#' #Made up weights:
+#' sl_weight <- c(0.5, 0.5)
+#' 
+#' #Linear ensemble:
+#' sl_control <- list(ensemble_fn = "ensemble_linear")
+#' 
+#' #Get risk by setting l and u to min and max:
+#' risk <- optim_risk_sl_nloglik(sl_weight, input, sl_control, l = min(input$Y), u = max(input$Y))
+#' 
+#' 
 #' @return Numeric value of cross-validated negative log-likelihood
 #'
-  
-# # simulate data with proper format
-# # Y is one component of the multivariate outcome
-# # pred is the predictions made by learners 
-# input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
-# 
-# # made up weights
-# sl_weight <- c(0.5, 0.5)
-# # linear ensemble
-# sl_control <- list(ensemble_fn = "ensemble_linear")
-# # get risk setting l and u to min and max
-# # observed Y 
-# all_y <- unlist(lapply(input,"[",1))
-# risk <- optim_risk_sl_nloglik(sl_weight, input, l = min(all_y), u = max(all_y))
-
-# TO DO: Check this example
 
 optim_risk_sl_nloglik <- function(sl_weight, input, sl_control, 
                              l = 0 , u = 1, trim = 0.001){
@@ -128,29 +127,30 @@ optim_risk_sl_nloglik <- function(sl_weight, input, sl_control,
 #' 
 #' @examples
 #' 
+#' #Simulate data with proper format:
+#' #Y is one component of the multivariate outcome, pred is the predictions made by 2 learners
+#' input <- list(Y = rbinom(50, 1, 0.5), pred = cbind(runif(50,0,1), runif(50,0,1)))
 #' 
-# TO DO: Test that this works
-
-# # simulate data with proper format
-# # Y is one component of the multivariate outcome
-# # pred is the predictions made by learners
-# input <- list(Y = rbinom(50, 1, 0.5), 
-#               pred = cbind(runif(50,0,1), runif(50,0,1)))
-# 
-# # made up weights
-# sl_weight <- c(0.5, 0.5)
-# # linear ensemble
-# sl_control <- list(ensemble_fn = "ensemble_linear")
-
-# # get risk 
-# all_y <- unlist(lapply(input,"[",1))
-# risk <- optim_risk_sl_auc(sl_weight, input, sl_control)
-
+#' #Example weights:
+#' sl_weight <- c(0.5, 0.5)
+#' 
+#' #Linear ensemble:
+#' sl_control <- list(ensemble_fn = "ensemble_linear")
+#' 
+#' #Risk: 
+#' risk <- optim_risk_sl_auc(sl_weight, input, sl_control)
+#'
+ 
 optim_risk_sl_auc <- function(sl_weight, input, sl_control){
-    ens_pred <- lapply(input, function(i){
-        do.call(sl_control$ensemble_fn, args = list(weight = sl_weight, pred = i$pred))
-    })
-    risk <- 1 - cvAUC::cvAUC(ens_pred, input$Y)
+    
+    ens_pred <- do.call(sl_control$ensemble_fn, args = list(weight = sl_weight, pred = input$pred))
+    ens_y <- input$Y
+    
+    #ens_pred <- lapply(input, function(i){do.call(sl_control$ensemble_fn, args = list(weight = sl_weight, pred = i$pred))})
+    #ens_y <- lapply(input, function(i){Y = i$Y})
+    
+    auc <- cvAUC::cvAUC(ens_pred, ens_y)
+    risk <- 1 - auc$cvAUC
     return(risk)
 }
 
@@ -264,21 +264,19 @@ cv_risk_sl_auc <- function(input, sl_control){
 #' 
 #' @examples
 #' 
+#' #Simulate data with proper format:
+#' inp <- list(list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50))))
+#' 
+#' #Linear ensemble minimizing mean squared-error:
+#' sl_control <- list(ensemble_fn = "ensemble_linear", optim_risk_fn = "optim_risk_sl_se")
+#'
+#' #Get weights to minimize optim_risk:
+#' sl_weight <- weight_sl_convex(inp, sl_control)
 #' 
 #' @export
 #' 
-#' @return Numeric vector giving convex weights for super learner. 
+#' @return Numeric vector giving convex weights for the super learner. 
 #' 
-
-# # simulate data with proper format
-# input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
-# # linear ensemble minimizing mean squared-error
-# sl_control <- list(ensemble_fn = "ensemble_linear",
-#                    optim_risk_fn = "optim_risk_sl_mse")
-# # get weights to minimize optim_risk
-# sl_weight <- weight_sl_convex(input, sl_control)
-
-# TO DO: Check this example
 
 weight_sl_convex <- function(input, sl_control){
     # number of learners
@@ -324,15 +322,14 @@ weight_sl_convex <- function(input, sl_control){
 #' @export
 #' @examples
 #' 
-# # simulate data and properly format
-# input <- list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50)))
-# # linear ensemble
-# sl_control <- list(ensemble_fn = "ensemble_linear")
-# # get weights to minimize optim_risk
-# sl_weight <- weight_sl_01(input, sl_control)
-#  
-
-# TO DO: Check this example
+#' #Simulate data and properly format:
+#' input <- list(list(Y = rbinom(50,1,0.5), pred = cbind(rnorm(50), rnorm(50))))
+#' 
+#' #Linear ensemble
+#' sl_control <- list(ensemble_fn = "ensemble_linear", optim_risk_fn = "optim_risk_sl_auc")
+#' 
+#' #Get weights to minimize optim_risk:
+#' sl_weight <- weight_sl_01(input, sl_control)
 
 weight_sl_01 <- function(input, sl_control){
     # number of learners
@@ -349,8 +346,7 @@ weight_sl_01 <- function(input, sl_control){
         y_weight <- rep(0, M)
         y_weight[m] <- 1
         risks[m] <- do.call(sl_control$optim_risk_fn, 
-                            #Checkkkk weight_y vs. y_weight
-                            args = list(weight_y = y_weight, 
+                            args = list(sl_weight = y_weight, 
                                         input = risk_input, 
                                         sl_control = sl_control))    
     }

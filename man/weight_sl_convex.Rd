@@ -14,7 +14,7 @@ from \code{learner} and columns correspond to different \code{learner}).}
 \item{sl_control}{Super learner control options.}
 }
 \value{
-Numeric vector giving convex weights for super learner.
+Numeric vector giving convex weights for the super learner.
 }
 \description{
 In general, the function passed to \code{sl_control$weight_fn} should expect a list of 
@@ -32,5 +32,13 @@ In this case, the function uses \code{Rsolnp::solnp} to minimize
 }
 \examples{
 
+#Simulate data with proper format:
+inp <- list(list(Y = rnorm(50), pred = cbind(rnorm(50), rnorm(50))))
+
+#Linear ensemble minimizing mean squared-error:
+sl_control <- list(ensemble_fn = "ensemble_linear", optim_risk_fn = "optim_risk_sl_se")
+
+#Get weights to minimize optim_risk:
+sl_weight <- weight_sl_convex(inp, sl_control)
 
 }

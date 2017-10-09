@@ -167,22 +167,23 @@ cv_risk_y_r2 <- function(input, y_weight_control){
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
 #' @importFrom cvAUC cvAUC
+#' 
 #' @return Numeric value of cross-validated AUC.
+#' 
 #' @examples
-#'
- 
-# # simulate data with proper format
-# input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
-#                    pred = cbind(runif(50,0,1), runif(50,0,1))))
-# 
-# # linear combination of outcomes
-# y_weight_control <- list(ensemble_fn = "ensemble_linear")
-# 
-# # get risk 
-# risk <- optim_risk_y_auc(y_weight, input, y_weight_control)
-
-# TO DO: Check this example
-# TO DO : test that this works
+#' 
+#' #Simulate data with proper format:
+#' input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5), rbinom(50,1,0.5)), 
+#' pred = cbind(runif(50,0,1), runif(50,0,1), runif(50,0,1))))
+#' 
+#' #Linear combination of outcomes:
+#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
+#' 
+#' #Example weights:
+#' y_weight<-c(0,1,0)
+#' 
+#' #Get risk:
+#' risk <- optim_risk_y_auc(y_weight, input, y_weight_control)
 
 optim_risk_y_auc <- function(y_weight, input, y_weight_control){
     ens_y <- lapply(input, function(i){

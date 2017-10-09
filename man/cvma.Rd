@@ -10,7 +10,7 @@ cvma(Y, X, V = 5, learners, sl_control = list(ensemble_fn =
   0.05), y_weight_control = list(ensemble_fn = "ensemble_linear", weight_fn =
   "weight_y_convex", optim_risk_fn = "optim_risk_y_r2", cv_risk_fn =
   "cv_risk_y_r2", alpha = 0.05), return_outer_weight = TRUE,
-  return_outer_sl = TRUE, return_all_y = TRUE)
+  return_outer_sl = TRUE, return_all_y = TRUE, scale = FALSE)
 }
 \arguments{
 \item{Y}{A matrix or data.frame of outcomes}
@@ -39,6 +39,8 @@ layer (i.e., V-fold super learner).}
 
 \item{return_all_y}{Whether to return cross-validated performance measures for each
 column of \code{Y}.}
+
+\item{scale}{Standardize each outcome to be mean zero with standard deviation 1.}
 }
 \value{
 TO DO : Add return values
