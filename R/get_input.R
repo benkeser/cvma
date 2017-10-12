@@ -38,7 +38,6 @@ get_y_weight_input <- function(split_Y, Ynames,
     # need to search_fits_for_training_folds, but now for all Y
     # also need to search_sl_for_training_folds
     
-
     # Y output 
     Y_out <- lapply(split(train_matrix, col(train_matrix)), get_Y_out, 
                          split_Y = split_Y, training_folds = training_folds)

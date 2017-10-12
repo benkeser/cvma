@@ -72,7 +72,7 @@ cvma <- function(Y, X, V = 5, learners,
     M <- length(learners)
     
     #scale all multivariate outcome by covariance matrix?
-    if(scale){
+    if(scale & !(all(Y==0 | Y==1))){
       Ymat <- data.frame(scale(Y))
     }else{
       # put Y into the proper format
