@@ -22,7 +22,7 @@ R-squared).
 \description{
 In general, the function passed to \code{y_weight_control$weight_fn} should expect a list of 
 named lists of outcomes (Y), predictions (pred) in validation folds. Typically,
-this function is used to maximize \code{y_weight_control$optim_risk_fn} over 
+this function is used to minimize \code{y_weight_control$optim_risk_fn} over 
 weights. The function should return a named list. One of the names in the list should
 be \code{weight}, which is the optimized weights. Other entries in the return list
 are passed on to \code{y_weight_control$cv_risk_fn} (e.g., things needed to compute

@@ -38,7 +38,7 @@ minimizes \code{y_weight_control$optim_risk_fn}.
 input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
                    pred = cbind(runif(50,0,1), runif(50,0,1)),
                    y_weight = list(weight = c(0.5, 0.5))),
-              list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
+                   list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
                    pred = cbind(runif(50,0,1), runif(50,0,1)),
                    y_weight = list(weight = c(0.25, 0.75))))
 
