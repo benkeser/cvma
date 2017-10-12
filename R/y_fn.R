@@ -20,21 +20,17 @@
 #' @return Numeric value of cross-validated R-squared
 #' @examples
 #' 
-
-# # simulate data with proper format
-# input <- list(list(Y = cbind(rnorm(50), rnorm(50)), 
-#                    pred = cbind(rnorm(50), rnorm(50))))
-# 
-# # made up weights
-# y_weight <- c(0.5, 0.5)
-# 
-# # linear combination of outcomes
-# y_weight_control <- list(ensemble_fn = "ensemble_linear")
-# 
-# # get risk 
-# risk <- optim_risk_y_r2(y_weight, input, y_weight_control)
-
-#TO DO: Check this example
+#' #Simulate data with proper format:
+#' input <- list(Y = cbind(rnorm(50), rnorm(50)),pred = cbind(rnorm(50), rnorm(50)))
+#' 
+#' # made up weights
+#' y_weight <- c(0.5, 0.5)
+#' 
+#' # linear combination of outcomes
+#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
+#' 
+#' # get risk
+#' risk <- optim_risk_y_r2(y_weight, input, y_weight_control)
 
 optim_risk_y_r2 <- function(y_weight, input, y_weight_control){
     # get ensemble of outcomes
@@ -273,7 +269,7 @@ cv_risk_y_auc <- function(input, y_weight_control){
 #' 
 #' In general, the function passed to \code{y_weight_control$weight_fn} should expect a list of 
 #' named lists of outcomes (Y), predictions (pred) in validation folds. Typically,
-#' this function is used to maximize \code{y_weight_control$optim_risk_fn} over 
+#' this function is used to minimize \code{y_weight_control$optim_risk_fn} over 
 #' weights. The function should return a named list. One of the names in the list should
 #' be \code{weight}, which is the optimized weights. Other entries in the return list
 #' are passed on to \code{y_weight_control$cv_risk_fn} (e.g., things needed to compute

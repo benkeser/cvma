@@ -31,4 +31,15 @@ In this case, the function computes cross-validated nonparametric R-squared.
 }
 \examples{
 
+#Simulate data with proper format:
+input <- list(Y = cbind(rnorm(50), rnorm(50)),pred = cbind(rnorm(50), rnorm(50)))
+
+# made up weights
+y_weight <- c(0.5, 0.5)
+
+# linear combination of outcomes
+y_weight_control <- list(ensemble_fn = "ensemble_linear")
+
+# get risk
+risk <- optim_risk_y_r2(y_weight, input, y_weight_control)
 }

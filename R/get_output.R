@@ -75,6 +75,7 @@ get_pred_out <- function(fit_idx, learner_folds = NULL, sl_folds = NULL,
 get_sl_pred_out <- function(sl_training_folds, Ynames, outer_valid_folds, 
                             all_fit_tasks, all_fits, all_sl, learners, 
                             sl_control, V){
+  
     if(!is.null(outer_valid_folds)){
         # evaluates in get_y_weight_input
         # where we want to get sl predictions on the fold that was held out of 
@@ -84,6 +85,7 @@ get_sl_pred_out <- function(sl_training_folds, Ynames, outer_valid_folds,
         # evaluates in get_risk and get_risk_sl
         inner_valid_folds <- (1:V)[-sl_training_folds]
     }
+  
     # find fits corresponding with train_matrix[,x]
     fit_idx <- sapply(Ynames, search_fits_for_training_folds, training_folds = sl_training_folds, fits = all_fit_tasks,
                       simplify = FALSE)
