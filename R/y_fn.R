@@ -182,16 +182,17 @@ cv_risk_y_r2 <- function(input, y_weight_control){
 #' risk <- optim_risk_y_auc(y_weight, input, y_weight_control)
 
 optim_risk_y_auc <- function(y_weight, input, y_weight_control){
+  
     #ens_y <- lapply(input, function(i){
     #    do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = i$Y))
     #})
     #ens_p <- lapply(input, function(i){
     #    do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = i$pred))
     #})
-  
+    
     ens_y <- do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = input$Y))
     ens_p <- do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = input$pred))
-     
+    
     if(!all(unlist(ens_y) %in% c(0,1))){
         stop("risk_y_auc requires all composite outcome to be either 0 or 1")
     }
@@ -371,7 +372,7 @@ weight_y_convex <- function(input, y_weight_control){
 #' input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
 #'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
 #'                    y_weight = list(weight = c(0.5, 0.5))),
-#'               list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
+#'                    list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
 #'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
 #'                    y_weight = list(weight = c(0.25, 0.75))))
 #' 
@@ -398,7 +399,7 @@ weight_y_01 <- function(input, y_weight_control){
         y_weight <- rep(0, J)
         y_weight[j] <- 1
         risks[j] <- do.call(y_weight_control$optim_risk_fn, 
-                            args = list(y_weight = y_weight, input = input,
+                            args = list(y_weight = y_weight, input = solnp_input,
                                         y_weight_control = y_weight_control))
     }
 

@@ -82,7 +82,11 @@ cvma <- function(Y, X, V = 5, learners,
     #Checks
     if(!all(apply(Ymat,2,function(x) { all(x %in% 0:1) })) & sl_control$optim_risk_fn == "optim_risk_sl_auc"){
       stop("Outcome should be binary.")
-      }
+    }
+    
+    if(y_weight_control$weight_fn == "weight_y_convex" & y_weight_control$optim_risk_fn == "optim_risk_y_auc"){
+      stop("Risk_y_auc requires all composite outcome to be either 0 or 1.")
+    }
 
     # correct names if none
     if(is.null(colnames(Ymat))){
