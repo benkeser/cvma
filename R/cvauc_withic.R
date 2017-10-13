@@ -1,3 +1,5 @@
+globalVariables(c("`:=`"))
+
 #' ci.cvAUC_withIC
 #' 
 #' This function is nearly verbatim \link[cvAUC]{ci.cvAUC} from the cvAUC package. 
@@ -7,7 +9,7 @@
 #' @param predictions A vector, matrix, list, or data frame containing the predictions.
 #' @param labels A vector, matrix, list, or data frame containing the true class labels. Must have the 
 #' same dimensions as \code{predictions}.
-#' @param label.order The default ordering of the classes can be changed by supplying 
+#' @param label.ordering The default ordering of the classes can be changed by supplying 
 #' a vector containing the negative and the positive class label (negative label first, 
 #' positive label second).
 #' @param folds If specified, this must be a vector of fold ids equal in length to \code{predictions} 
@@ -18,6 +20,7 @@
 #' 
 #' @importFrom cvAUC AUC cvAUC
 #' @importFrom data.table data.table
+#' @importFrom stats var
 #' 
 #' @return A list containing the following named elements: 
 #' \item{cvAUC}{Cross-validated area under the curve estimate.}
@@ -57,13 +60,12 @@ ci.cvAUC_withIC <- function(predictions, labels, label.ordering = NULL,
       auc <- cvAUC::AUC(fold_preds, fold_labels)
       DT <- data.table::data.table(pred = fold_preds, label = fold_labels)
       DT <- DT[order(pred, -xtfrm(label))]
-      DT[, `:=`(fracNegLabelsWithSmallerPreds, cumsum(label == 
-                                                        neg)/n_neg)]
+      DT[, fracNegLabelsWithSmallerPreds := cumsum(label == neg)/n_neg]
       DT <- DT[order(-pred, label)]
-      DT[, `:=`(fracPosLabelsWithLargerPreds, cumsum(label == 
-                                                       pos)/n_pos)]
-      DT[, `:=`(icVal, ifelse(label == pos, w1 * (fracNegLabelsWithSmallerPreds - 
-                                                    auc), w0 * (fracPosLabelsWithLargerPreds - auc)))]
+      DT[, fracPosLabelsWithLargerPreds := cumsum(label == pos)/n_pos]
+      DT[, icVal := ifelse(label == pos, w1 * 
+                           (fracNegLabelsWithSmallerPreds - auc), 
+                           w0 * (fracPosLabelsWithLargerPreds - auc))]
       return(DT$icVal)
   }
 
@@ -72,7 +74,7 @@ ci.cvAUC_withIC <- function(predictions, labels, label.ordering = NULL,
   # not back-sorted
   ic <- unlist(icOut)
   # Estimated variance
-  sighat2 <- mean(unlist(lapply(icOut, var)))
+  sighat2 <- mean(unlist(lapply(icOut, stats::var)))
   se <- sqrt(sighat2/n_obs)  
   cvauc <- cvAUC::cvAUC(predictions, labels)$cvAUC
   z <- qnorm(confidence + (1 - confidence)/2)

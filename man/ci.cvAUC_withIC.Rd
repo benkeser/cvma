@@ -13,16 +13,16 @@ ci.cvAUC_withIC(predictions, labels, label.ordering = NULL, folds = NULL,
 \item{labels}{A vector, matrix, list, or data frame containing the true class labels. Must have the 
 same dimensions as \code{predictions}.}
 
+\item{label.ordering}{The default ordering of the classes can be changed by supplying 
+a vector containing the negative and the positive class label (negative label first, 
+positive label second).}
+
 \item{folds}{If specified, this must be a vector of fold ids equal in length to \code{predictions} 
 and \code{labels}, or a list of length V (for V-fold cross-validation) of vectors of indexes for 
 the observations contained in each fold. The \code{folds} argument must only be specified if 
 the \code{predictions} and \code{labels} arguments are vectors.}
 
 \item{confidence}{number between 0 and 1 that represents confidence level.}
-
-\item{label.order}{The default ordering of the classes can be changed by supplying 
-a vector containing the negative and the positive class label (negative label first, 
-positive label second).}
 }
 \value{
 A list containing the following named elements: 

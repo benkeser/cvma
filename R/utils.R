@@ -42,14 +42,14 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 			out$outer_weights <- data.frame(matrix(NA, nrow = 1,
 		                                       ncol = length(object$y_names) + 1))
 			colnames(out$outer_weights) <- c("training_folds", object$y_names)
-			out$outer_weights$training_folds <- list(fit$outer_weight$training_folds)
-			out$outer_weights[,2:ncol(out$outer_weights)] <- fit$outer_weight$weight
+			out$outer_weights$training_folds <- list(object$outer_weight$training_folds)
+			out$outer_weights[,2:ncol(out$outer_weights)] <- object$outer_weight$weight
 		}
 		out$inner_weights <- data.frame(matrix(NA, nrow = length(object$inner_weight),
 		                                       ncol = length(object$y_names) + 1))
 		colnames(out$inner_weights) <- c("training_folds", object$y_names)
-		out$inner_weights$training_folds <- lapply(fit$inner_weight, "[[", "training_folds")
-		out$inner_weights[,2:ncol(out$inner_weights)] <- Reduce(rbind, lapply(fit$inner_weight, "[[", "weight"))
+		out$inner_weights$training_folds <- lapply(object$inner_weight, "[[", "training_folds")
+		out$inner_weights[,2:ncol(out$inner_weights)] <- Reduce(rbind, lapply(object$inner_weight, "[[", "weight"))
 		return(out)
 	}else if(aspect == "superlearner"){
 		if(is.null(object$cv_assoc_all_y)){
