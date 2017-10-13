@@ -212,14 +212,14 @@ cv_risk_sl_r2 <- function(input, sl_control){
     ic_mse <- (all_y - all_pred)^2 - cv_mse
     ic_var <- (all_y - ybar)^2 - y_var
         
-    grad <- matrix(c(1/cv_mse, -1/y_var), ncol = 1)
-    # this is the ic for log(mse/var) (i.e., 1 - r2)
-    # presumably a variable importance measure will be based
-    # on the difference between fit1$cv_assoc and fit2$cv_assoc
-    # which here would mean the ratio of the two. seems ok,
-    # but needs to be described in documentation or vignette
+    log_grad <- matrix(c(1/cv_mse, -1/y_var), ncol = 1)
+    grad <- matrix(c(-1/y_var, cv_mse/y_var^2), ncol = 1)
+    
     ic_mat <- rbind(ic_mse, ic_var)
+    
+    log_ic <- crossprod(log_grad, ic_mat)
     ic <- crossprod(grad, ic_mat)
+    
     se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(ic))/length(ic_mse))
         
     ci_low <- 1 - exp(

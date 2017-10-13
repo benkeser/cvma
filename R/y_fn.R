@@ -124,15 +124,15 @@ cv_risk_y_r2 <- function(input, y_weight_control){
     ic_mse <- (unlist(ens_y) - unlist(ens_p))^2 - cv_mse
     ic_var <- (unlist(ens_y) - unlist(ens_ybar))^2 - cv_var
         
-    grad <- matrix(c(1/cv_mse, -1/cv_var), ncol = 1)
-    # this is the ic for log(mse/var) (i.e., 1 - r2)
-    # presumably a variable importance measure will be based
-    # on the difference between fit1$cv_assoc and fit2$cv_assoc
-    # which here would mean the ratio of the two. seems ok,
-    # but needs to be described in documentation or vignette
+    log_grad <- matrix(c(1/cv_mse, -1/cv_var), ncol = 1)
+    grad <- matrix(c(-1/cv_var, cv_mse/cv_var^2), ncol = 1)
+    
     ic_mat <- rbind(ic_mse, ic_var)
+    
+    log_ic <- crossprod(log_grad, ic_mat)
     ic <- crossprod(grad, ic_mat)
-    se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(ic))/length(ic_mse))
+    
+    se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(log_ic))/length(ic_mse))
            
     ci_low <- 1 - exp(
         log(cv_mse/cv_var) + stats::qnorm(1-(y_weight_control$alpha/2)) * se_1mlog_cv_r2

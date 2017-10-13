@@ -1,5 +1,3 @@
-globalVariables(c("`:=`"))
-
 #' ci.cvAUC_withIC
 #' 
 #' This function is nearly verbatim \link[cvAUC]{ci.cvAUC} from the cvAUC package. 
