@@ -1,6 +1,9 @@
 md:
 	r -e "rmarkdown::render('README.Rmd')"
 
+build: 
+	r -e "install.packages('~/Dropbox/R/cvma/',type='source',repos=NULL)"
+
 site:
 	r -e "pkgdown::build_site()"
 

@@ -195,7 +195,8 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
             })
 
     out <- list(Yname = task$Yname, sl_weight = sl_weight,
-                learner_risks = risks, learers = fit_out)
+                learner_names = learners,
+                learner_risks = risks, learner_fits = fit_out)
     return(out)
 }
 

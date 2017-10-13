@@ -51,7 +51,20 @@ outcome cross-validated measure (nonparametric R-squared or AUC), confidence int
 p-value.
 }
 \description{
-TO DO: Add a description here.
+A flexible interface for computing cross-validation-based measures of maximal association.
+In an outer layer of V-fold cross validation, training samples are used to train a prediction 
+algorithm for each outcome. Multiple algorithms may be ensembled using stacking (also known as 
+super learning) based on V-2 fold cross-validation. An inner layer of V-1 cross validation is used 
+to determine a user-specified combination of outcomes that maximizes a user-specified prediction 
+criteria. The outer layer
+validation sample is used to compute a user-specified cross-validated measure of performance of
+the prediction algorithm for predicting the combined outcome that was computed in the training 
+sample. Several common choices for outcome combinations (convex combination of
+outcomes and single outcome that is most associated) and prediction criteria (nonparametric R^2,
+negative log-likelihood, and area under ROC curve) are included; however, users may specify
+their own criteria as well. The function returns the cross-validated summary measure for the
+maximally combined outcome and, if desired, the cross-validated summary measure for each 
+outcome.
 }
 \details{
 TO DO: Figure out how future works (e.g., can plan() be specified internally
