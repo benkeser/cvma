@@ -149,7 +149,7 @@ optim_risk_sl_auc <- function(sl_weight, input, sl_control){
     #ens_pred <- lapply(input, function(i){do.call(sl_control$ensemble_fn, args = list(weight = sl_weight, pred = i$pred))})
     #ens_y <- lapply(input, function(i){Y = i$Y})
     
-    auc <- cvAUC::cvAUC(ens_pred, ens_y)
+    auc <- cvAUC::cvAUC(predictions = ens_pred, labels = ens_y)
     risk <- 1 - auc$cvAUC
     return(risk)
 }
@@ -213,9 +213,14 @@ cv_risk_sl_r2 <- function(input, sl_control){
     ic_var <- (all_y - ybar)^2 - y_var
         
     grad <- matrix(c(1/cv_mse, -1/y_var), ncol = 1)
-    ic <- rbind(ic_mse, ic_var)
-
-    se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(crossprod(grad, ic)))/length(ic_mse))
+    # this is the ic for log(mse/var) (i.e., 1 - r2)
+    # presumably a variable importance measure will be based
+    # on the difference between fit1$cv_assoc and fit2$cv_assoc
+    # which here would mean the ratio of the two. seems ok,
+    # but needs to be described in documentation or vignette
+    ic_mat <- rbind(ic_mse, ic_var)
+    ic <- crossprod(grad, ic_mat)
+    se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(ic))/length(ic_mse))
         
     ci_low <- 1 - exp(
         log(cv_mse/y_var) + stats::qnorm(1-(sl_control$alpha/2)) * se_1mlog_cv_r2
@@ -226,7 +231,8 @@ cv_risk_sl_r2 <- function(input, sl_control){
     )
     p_value <- stats::pnorm(log(cv_mse/y_var)/se_1mlog_cv_r2)
     
-    return(list(cv_measure = cv_r2, ci_low = ci_low, ci_high = ci_high, p_value = p_value))
+    return(list(cv_measure = cv_r2, ci_low = ci_low, ci_high = ci_high, p_value = p_value,
+                ic = as.numeric(ic)))
 }
 
 #' Cross-validated area under the receiver operating characteristic curve
@@ -247,9 +253,9 @@ cv_risk_sl_r2 <- function(input, sl_control){
 #' with entries: Y (univariate outcome for this validation fold), pred (matrix of predictions
 #' from \code{learner} and columns correspond to different \code{learner}). 
 #' @param sl_control List of super learner control options. 
-#' 
+#' @export
+#' @importFrom stats pnorm
 #' @examples
-#' 
 #' # simulate data with proper format
 #' input <- list(list(valid_folds=1, Y = rbinom(50,1,0.5), pred = rbinom(50,1,0.5)),
 #'               list(valid_folds=2, Y = rbinom(50,1,0.5), pred = rbinom(50,1,0.5))) 
@@ -265,13 +271,12 @@ cv_risk_sl_auc <- function(input, sl_control){
   all_y <- unlist(lapply(input, '[[', "Y"))
   all_pred <- unlist(lapply(input, '[[', "pred"))
   
-  cv_auc_fit <- cvAUC::ci.cvAUC(all_y,  all_pred, confidence = 1 - sl_control$alpha)
+  cv_auc_fit <- ci.cvAUC_withIC(labels = all_y, predictions = all_pred, confidence = 1 - sl_control$alpha)
   
   # p-value of one-sided test that cvAUC = 0.5 vs. cvAUC > 0.5
   p_value <- stats::pnorm((cv_auc_fit$cvAUC - 0.5) / cv_auc_fit$se, lower.tail = FALSE)
   out <- list(cv_measure = cv_auc_fit$cvAUC, ci_low = cv_auc_fit$ci[1],
-              ci_high = cv_auc_fit$ci[2], p_value = p_value)
-
+              ci_high = cv_auc_fit$ci[2], p_value = p_value, ic = cv_auc_fit$ic)
 }
 
 #' Convex ensemble weights for super learner

@@ -235,6 +235,18 @@ get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds,
                                all_fit_tasks = all_fit_tasks, folds = folds, 
                                sl_control = sl_control, learners = learners)
     risk <- do.call(sl_control$cv_risk_fn, args = list(input = input, sl_control = sl_control))
+    # re-order influence function contributions
+    if(!is.null(risk$ic)){
+      if(length(risk$ic) != length(folds)){
+        stop(paste0("Length of influence curves returned by ", 
+                    sl_control$cv_risk_fn," is wrong. Check this", 
+                    "function for errors."))
+      }
+      n <- length(folds)
+      tmp <- rep(NA, n)
+      tmp[unlist(split(1:n, folds))] <- risk$ic
+      risk$ic <- tmp
+    }
     out <- c(Yname = task$Yname, risk)
     return(out)
 }
@@ -271,5 +283,17 @@ get_risk <- function(Y, V, all_fit_tasks, all_fits, all_weight, folds, all_sl,
                             learners = learners)
     risk <- do.call(y_weight_control$cv_risk_fn, 
                     args = list(input = input, y_weight_control = y_weight_control))
+    # re-sort ic contributions
+    if(!is.null(risk$ic)){
+      if(length(risk$ic) != length(folds)){
+        stop(paste0("Length of influence curves returned by ", 
+                    y_weight_control$cv_risk_fn," is wrong. Check this", 
+                    "function for errors."))
+      }
+      n <- length(folds)
+      tmp <- rep(NA, n)
+      tmp[unlist(split(1:n, folds))] <- risk$ic
+      risk$ic <- tmp
+    }
     return(risk)
 }

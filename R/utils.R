@@ -7,7 +7,7 @@
 #' 
 #' @export
 print.cvma <- function(x, ...){
-	print(data.frame(x$cv_assoc))
+	print(data.frame(x$cv_assoc[c("cv_measure","ci_low","ci_high","p_value")]))
 }
 
 

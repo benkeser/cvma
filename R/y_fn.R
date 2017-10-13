@@ -125,10 +125,15 @@ cv_risk_y_r2 <- function(input, y_weight_control){
     ic_var <- (unlist(ens_y) - unlist(ens_ybar))^2 - cv_var
         
     grad <- matrix(c(1/cv_mse, -1/cv_var), ncol = 1)
-    ic <- rbind(ic_mse, ic_var)
-
-    se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(crossprod(grad, ic)))/length(ic_mse))
-        
+    # this is the ic for log(mse/var) (i.e., 1 - r2)
+    # presumably a variable importance measure will be based
+    # on the difference between fit1$cv_assoc and fit2$cv_assoc
+    # which here would mean the ratio of the two. seems ok,
+    # but needs to be described in documentation or vignette
+    ic_mat <- rbind(ic_mse, ic_var)
+    ic <- crossprod(grad, ic_mat)
+    se_1mlog_cv_r2 <- as.numeric(sqrt(tcrossprod(ic))/length(ic_mse))
+           
     ci_low <- 1 - exp(
         log(cv_mse/cv_var) + stats::qnorm(1-(y_weight_control$alpha/2)) * se_1mlog_cv_r2
     )
@@ -138,7 +143,8 @@ cv_risk_y_r2 <- function(input, y_weight_control){
     )
     p_value <- stats::pnorm(log(cv_mse/cv_var)/se_1mlog_cv_r2)
     
-    return(list(cv_measure = cv_r2, ci_low = ci_low, ci_high = ci_high, p_value = p_value))
+    return(list(cv_measure = cv_r2, ci_low = ci_low, ci_high = ci_high, p_value = p_value,
+                ic = ic))
 }
 
 #' Cross-validated area under the receiver operating characteristic curve 
@@ -207,13 +213,13 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' corresponding to this validation fold and any other information needed by 
 #' \code{y_weight_control$cv_risk} (e.g., anything needed to compute confidence 
 #' intervals). The function should return a list with names cv_measure, ci_low,
-#' ci_high, and p_value. The output of this function is returned irrespective of the
+#' ci_high, p_value, and ic. The output of this function is returned irrespective of the
 #' names of the list; however, the names are necessary for \code{print} methods to 
-#' work properly.
+#' work properly. The \code{ic} slot can be left empty, but is needed for post-hoc
+#' computation of variable importance measures. 
 #' 
-#' In this case, the confidence intervals are computed using the \code{cvAUC::cvAUC.ci}
-#' function from the \code{cvAUC::cvAUC} package. The p-value
-#' is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
+#' In this case, the confidence intervals are computed using the \code{cvAUC.ci_withIC}. 
+#' The p-value is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 #' the alternative that it is greater than 0.5.  
 #' 
 #' @param input A list where each entry corresponds to a validation fold. Each entry is a list
@@ -222,7 +228,6 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
 #' different outcomes). 
 #' @param y_weight_control Composite outcome weight control options. 
 #' @export
-#' @importFrom cvAUC ci.cvAUC
 #' @importFrom stats pnorm
 #' @return List with named components cv_measure (cross-validated AUC), ci_low (lower
 #' 100(1 - \code{y_weight_control$alpha})\% CI), ci_high (upper
@@ -255,11 +260,11 @@ cv_risk_y_auc <- function(input, y_weight_control){
     if(!all(unlist(ens_y) %in% c(0,1))){
         stop("cv_risk_y_auc requires all composite outcome to be either 0 or 1")
     }
-    cv_auc_fit <- cvAUC::ci.cvAUC(ens_p, ens_y, confidence = 1 - y_weight_control$alpha)
+    cv_auc_fit <- ci.cvAUC_withIC(predictions = ens_p, labels = ens_y, confidence = 1 - y_weight_control$alpha)
     # p-value of one-sided test that cvAUC = 0.5 vs. cvAUC > 0.5
     p_value <- stats::pnorm((cv_auc_fit$cvAUC - 0.5) / cv_auc_fit$se, lower.tail = FALSE)
     out <- list(cv_measure = cv_auc_fit$cvAUC, ci_low = cv_auc_fit$ci[1],
-                ci_high = cv_auc_fit$ci[2], p_value = p_value)
+                ci_high = cv_auc_fit$ci[2], p_value = p_value, ic = cv_auc_fit$ic)
     return(out)
 }
 

@@ -28,14 +28,14 @@ of outcomes and predictions in validation folds, in addition to a list called
 corresponding to this validation fold and any other information needed by 
 \code{y_weight_control$cv_risk} (e.g., anything needed to compute confidence 
 intervals). The function should return a list with names cv_measure, ci_low,
-ci_high, and p_value. The output of this function is returned irrespective of the
+ci_high, p_value, and ic. The output of this function is returned irrespective of the
 names of the list; however, the names are necessary for \code{print} methods to 
-work properly.
+work properly. The \code{ic} slot can be left empty, but is needed for post-hoc
+computation of variable importance measures.
 }
 \details{
-In this case, the confidence intervals are computed using the \code{cvAUC::cvAUC.ci}
-function from the \code{cvAUC::cvAUC} package. The p-value
-is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
+In this case, the confidence intervals are computed using the \code{cvAUC.ci_withIC}. 
+The p-value is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 the alternative that it is greater than 0.5.
 }
 \examples{

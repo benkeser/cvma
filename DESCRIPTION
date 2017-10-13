@@ -13,7 +13,9 @@ Depends:
     SuperLearner,
     Rsolnp,
     cvAUC,
-    future
+    ROCR,
+    future,
+    data.table
 Suggests: 
     testthat,
     knitr,
