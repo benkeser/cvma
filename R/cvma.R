@@ -23,10 +23,10 @@
 #' @param V Number of outer folds of cross-validation (nested cross-validation
 #' uses V-1 and V-2 folds), so must be at least four. 
 #' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
-#' @param sl_control A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
+#' @param sl_control A list with named entries ensemble_fn, optim_risk_fn, weight_fn,
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
-#' @param y_weight_control A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
+#' @param y_weight_control A list with named entries ensemble_fn, optim_risk_fn, weight_fn,
 #' cv_risk_fn. Available functions can be viewed with \code{y_weight_control_options()}. See
 #' \code{?y_weight_control_options} for more on how users may supply their own functions.  
 #' @param return_outer_weight Whether to return estimate of outcome
