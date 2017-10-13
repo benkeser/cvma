@@ -27,3 +27,15 @@ function from the \code{cvAUC} package. The p-value
 is for the one-sided hypothesis test that cross-validated AUC equals 0.5 against
 the alternative that it is greater than 0.5.
 }
+\examples{
+
+# simulate data with proper format
+input <- list(list(valid_folds=1, Y = rbinom(50,1,0.5), pred = rbinom(50,1,0.5)),
+              list(valid_folds=2, Y = rbinom(50,1,0.5), pred = rbinom(50,1,0.5))) 
+     
+# alpha value                        
+sl_control= list(alpha= 0.05)    
+
+# get risk 
+cv_risk <- cv_risk_sl_r2(input, sl_control)   
+}

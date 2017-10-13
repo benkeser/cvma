@@ -192,7 +192,6 @@ optim_risk_sl_auc <- function(sl_weight, input, sl_control){
 #' # get risk 
 #' cv_risk <- cv_risk_sl_r2(input, sl_control)                         
 
-
 cv_risk_sl_r2 <- function(input, sl_control){
     # mse
     mse_list <- unlist(lapply(input, FUN = function(i){
@@ -249,9 +248,29 @@ cv_risk_sl_r2 <- function(input, sl_control){
 #' from \code{learner} and columns correspond to different \code{learner}). 
 #' @param sl_control List of super learner control options. 
 #' 
+#' @examples
+#' 
+#' # simulate data with proper format
+#' input <- list(list(valid_folds=1, Y = rbinom(50,1,0.5), pred = rbinom(50,1,0.5)),
+#'               list(valid_folds=2, Y = rbinom(50,1,0.5), pred = rbinom(50,1,0.5))) 
+#'      
+#' # alpha value                        
+#' sl_control= list(alpha= 0.05)    
+#' 
+#' # get risk 
+#' cv_risk <- cv_risk_sl_r2(input, sl_control)   
+ 
 cv_risk_sl_auc <- function(input, sl_control){
  
-    # TO DO : Write cv_risk_sl_auc
+  all_y <- unlist(lapply(input, '[[', "Y"))
+  all_pred <- unlist(lapply(input, '[[', "pred"))
+  
+  cv_auc_fit <- cvAUC::ci.cvAUC(all_y,  all_pred, confidence = 1 - sl_control$alpha)
+  
+  # p-value of one-sided test that cvAUC = 0.5 vs. cvAUC > 0.5
+  p_value <- stats::pnorm((cv_auc_fit$cvAUC - 0.5) / cv_auc_fit$se, lower.tail = FALSE)
+  out <- list(cv_measure = cv_auc_fit$cvAUC, ci_low = cv_auc_fit$ci[1],
+              ci_high = cv_auc_fit$ci[2], p_value = p_value)
 
 }
 
