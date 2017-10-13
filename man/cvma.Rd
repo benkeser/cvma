@@ -43,7 +43,12 @@ column of \code{Y}.}
 \item{scale}{Standardize each outcome to be mean zero with standard deviation 1.}
 }
 \value{
-TO DO : Add return values
+If \code{return_outer_sl} is TRUE, it will return for each outcome Super Learner fit weights 
+and associated risk for each learner. In addition, it will return the fit for all learners based on 
+all folds. If \code{return_outer_weight} is TRUE, it will return the weights for each outcome
+obtained using V-1 cross-validation. If \code{return_all_y} is TRUE, it will return for each 
+outcome cross-validated measure (nonparametric R-squared or AUC), confidence interval and associated
+p-value.
 }
 \description{
 TO DO: Add a description here.

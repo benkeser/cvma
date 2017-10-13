@@ -27,7 +27,13 @@
 #' column of \code{Y}. 
 #' @param scale Standardize each outcome to be mean zero with standard deviation 1.
 #' 
-#' @return TO DO : Add return values
+#' @return If \code{return_outer_sl} is TRUE, it will return for each outcome Super Learner fit weights 
+#' and associated risk for each learner. In addition, it will return the fit for all learners based on 
+#' all folds. If \code{return_outer_weight} is TRUE, it will return the weights for each outcome
+#' obtained using V-1 cross-validation. If \code{return_all_y} is TRUE, it will return for each 
+#' outcome cross-validated measure (nonparametric R-squared or AUC), confidence interval and associated
+#' p-value. 
+#'  
 #' @export
 #' 
 #' @seealso predict method 
@@ -122,15 +128,12 @@ cvma <- function(Y, X, V = 5, learners,
                                  all_fit_tasks = all_fit_tasks, 
                                  sl_control = sl_control, y_weight_control = y_weight_control, folds = folds,
                                  learners = learners)
-                                 # ensemble_fn = ensemble_fn,
-                                 # optim_risk_y_weight_control = optim_risk_y_weight_control)
 
     # get risk input
     risk <- get_risk(Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
                      all_fits = all_fits, all_sl = all_sl, folds = folds, 
                      all_weight = all_weight, 
                      sl_control = sl_control, y_weight_control = y_weight_control, learners = learners) 
-                     # ensemble_fn = ensemble_fn, cv_risk_y_weight_control = cv_risk_y_weight_control)
 
     # compute outer super learner
     if(return_outer_sl){
@@ -139,8 +142,6 @@ cvma <- function(Y, X, V = 5, learners,
                            Y = Ymat, V = V, all_fit_tasks = all_fit_tasks,
                            all_fits = all_fits, folds = folds,
                            sl_control = sl_control, learners = learners, 
-                           # ensemble_fn = ensemble_fn, risk_sl_control = risk_sl_control,
-                           # weight_sl_control = weight_sl_control, 
                            return_learner_fits = TRUE)
     }else{
         all_outer_sl <- NULL
@@ -154,8 +155,6 @@ cvma <- function(Y, X, V = 5, learners,
                                        all_fit_tasks = all_fit_tasks,
                                        sl_control = sl_control, y_weight_control = y_weight_control, folds = folds,
                                        learners = learners)
-                                       # ensemble_fn = ensemble_fn,
-                                       # optim_risk_y_weight_control = optim_risk_y_weight_control)
     }else{
         outer_weight <- NULL
     }

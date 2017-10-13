@@ -174,12 +174,24 @@ optim_risk_sl_auc <- function(sl_weight, input, sl_control){
 #' from \code{learner} and columns correspond to different \code{leaner}s). 
 #' @param sl_control List of super learner control options. 
 #' 
-#' TO DO: add example
 #' @export
 #' @importFrom stats qnorm pnorm
 #' @return A list with named entries cv_measure, ci_low, ci_high, and p_value. The list will
 #' be returned by \code{max_assoc} irrespective of the named entries; however, the \code{print}
 #' methods will only work if the function returns the above names. 
+#' 
+#' @examples
+#'
+#' # simulate data with proper format
+#' input <- list(list(valid_folds=1, Y = rbinom(50,1,0.5),pred = runif(50,0,1)),
+#'               list(valid_folds=2, Y = rbinom(50,1,0.5),pred = runif(50,0,1))) 
+#'      
+#' # alpha value                        
+#' sl_control= list(alpha= 0.05)    
+#' 
+#' # get risk 
+#' cv_risk <- cv_risk_sl_r2(input, sl_control)                         
+
 
 cv_risk_sl_r2 <- function(input, sl_control){
     # mse
