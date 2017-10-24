@@ -87,6 +87,7 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 #' @param newdata A \code{data.frame} of predictors on which to obtain predictions
 #' @param ... Other options (not currently used)
 #' @export
+#' @importFrom stats predict
 #' @return A list of predictions with named entries \code{y_weight} and \code{object$y_names}.
 #' The former contains predictions of the weighted outcome, while the latter contains predictions of
 #' the respective univariate outcome. Each entry in the outputted list is itself a list with two entries. 
@@ -100,7 +101,7 @@ predict.cvma <- function(object, newdata, ...){
 	outcome_pred_list <- lapply(object$sl_fits, function(f){
 		# loop over learners
 		learner_pred <- Reduce(cbind, lapply(f$learner_fits, function(l){
-			predict(l$fit, newdata = newdata)
+			stats::predict(l$fit, newdata = newdata)
 		}))
 		colnames(learner_pred) <- object$learners
 		sl_weight <- matrix(f$sl_weight)
@@ -110,7 +111,7 @@ predict.cvma <- function(object, newdata, ...){
 	names(outcome_pred_list) <- object$y_names
 	# combined outcome predictions for superlearner
 	sl_pred_mat <- Reduce(cbind, lapply(outcome_pred_list, "[[", "sl_pred"))
-	y_weight <- matrix(fit$outer_weight$weight)
+	y_weight <- matrix(object$outer_weight$weight)
 	sl_pred_weight <- sl_pred_mat %*% y_weight
 	# combined outcome predictions for learners
 	learner_pred_weight <- sapply(1:length(object$learners), function(i){
