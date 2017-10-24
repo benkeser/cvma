@@ -26,9 +26,14 @@ get_fit <- function(task, folds, X, Y, sl_control){
       valid_X <- train_X
     }
     # fit super learner wrapper
-    fit <- do.call(task$SL_wrap, list(Y = train_Y, X = train_X,
-                                 newX = valid_X, obsWeights = rep(1, length(train_Y)),
-                                 family = sl_control$family))
+    opts <- list(Y = train_Y, X = train_X,
+                    newX = valid_X, obsWeights = rep(1, length(train_Y)),
+                    family = sl_control$family)
+    fit <- tryCatch(
+            do.call(task$SL_wrap, args = opts),
+            error = function(e){
+              do.call(SuperLearner::SL.mean, args = opts)
+            })
     # split up validation predictions
     if(sum(valid_idx) > 0){
       fit$pred <- split(fit$pred, folds[valid_idx])
@@ -248,6 +253,57 @@ get_risk_sl <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds,
       risk$ic <- tmp
     }
     out <- c(Yname = task$Yname, risk)
+    return(out)
+}
+
+#' Get cross-validated risk of the super learner for a univariate outcome
+#' 
+#' @param task A named list identifying what training folds to use to 
+#' obtain outcome weights. 
+#' @param Y A matrix or data.frame of outcomes
+#' @param V Number of outer folds of cross-validation (nested cross-validation
+#' uses V-1 and V-2 folds), so must be at least four. 
+#' @param all_fits A list of all learner fits (from \code{get_fit})
+#' @param all_sl A list of all super learner fits (from \code{get_sl})
+#' @param all_fit_tasks A list of all learner fitting tasks (quicker to search over
+#' than \code{all_fits}). 
+#' @param sl_control A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
+#' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
+#' \code{?sl_control_options} for more on how users may supply their own functions.  
+#' @param folds Vector identifying which fold observations fall into. 
+#' @param learners Super learner wrappers. See \code{SuperLearner::listWrappers}.
+#' @param all_weight List of all outcome weight fits.
+#' 
+#' @return Named list identifying which outcome and the cross-validated risk of the super learner. 
+
+get_risk_learner <- function(task, Y, V, all_sl, all_fit_tasks, all_fits, folds, 
+                        sl_control, learners, all_weight){
+    split_Y <- split(Y[ , task$Yname], folds)
+    
+    if(!all(1:V %in% task$training_folds)){
+        valid_folds <- (1:V)[-task$training_folds]        
+    }else{
+        valid_folds <- NULL
+    }    
+    input <- get_risk_learner_input(split_Y = split_Y, Yname = task$Yname, V = V,
+                               all_fits = all_fits, 
+                               all_weight = all_weight, all_sl = all_sl, 
+                               all_fit_tasks = all_fit_tasks, folds = folds, 
+                               sl_control = sl_control, learner = task$SL_wrap)
+    risk <- do.call(sl_control$cv_risk_fn, args = list(input = input, sl_control = sl_control))
+    # re-order influence function contributions
+    if(!is.null(risk$ic)){
+      if(length(risk$ic) != length(folds)){
+        stop(paste0("Length of influence curves returned by ", 
+                    sl_control$cv_risk_fn," is wrong. Check this", 
+                    "function for errors."))
+      }
+      n <- length(folds)
+      tmp <- rep(NA, n)
+      tmp[unlist(split(1:n, folds))] <- risk$ic
+      risk$ic <- tmp
+    }
+    out <- c(Yname = task$Yname, SL_wrap = task$SL_wrap, risk)
     return(out)
 }
 

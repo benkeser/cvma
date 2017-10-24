@@ -183,6 +183,52 @@ get_risk_sl_input <- function(split_Y, Yname, all_fits, learners, V,
 
     return(out)
 }
+#' Create input list for \code{get_risk_learner}
+#' 
+#' @param split_Y The outcome matrix split by relevant validation folds.
+#' @param Yname The names of the outcomes. Used to search \code{all_fits}
+#' and \code{all_sl}.
+#' @param all_fits List of all learner fits.
+#' @param all_fit_tasks List of all learner fit tasks (faster to search over than
+#' search over all_fits). 
+#' @param all_sl List of all super learner weight fits. 
+#' @param all_weight List of all outcome weight fits. 
+#' @param V Number of folds.
+#' @param learners Vector of super learner vectors.
+#' @param sl_control List of super learner controls.
+#' @param folds Cross-validation folds.
+#' 
+#' @return List with each entry a list with entries: valid_fold (the number of the
+#' corresponding fold), Y (univariate outcome in this validation fold), pred (matrix
+#' of outcome predictions for this validation fold from learners fit in 
+#' training folds). \code{get_risk_learner} is only used to compute the cross-validated 
+#' risk of individual outcomes and so is only used in the outer most cross-validation
+#' layer. 
+
+get_risk_learner_input <- function(split_Y, Yname, learner, all_fits, V,
+                              folds, all_sl, all_fit_tasks, all_weight, sl_control){
+    # we need to get sl fit for this guy
+    train_matrix <- utils::combn(V, V-1)
+
+    pred_list <- lapply(split(train_matrix, col(train_matrix)), get_learner_pred_out, 
+                    Ynames = Yname, outer_valid_folds = NULL, V = V,
+                    all_fit_tasks = all_fit_tasks, all_fits = all_fits, 
+                    sl_control = sl_control,
+                    learner = learner)
+
+    Y_list <- lapply(split(train_matrix, col(train_matrix)), get_Y_out, V = V, 
+                split_Y = split_Y, training_folds = NULL)
+
+    fold_list <- lapply(split(train_matrix, col(train_matrix)), 
+                   get_fold_out, split_Y = split_Y, training_folds = NULL,
+                   valid_folds = NULL, V = V)
+
+    # reorganize into proper format
+    out <- do.call(Map, c(list, list(fold_list, Y_list, pred_list)))
+    out <- lapply(out, function(o){ names(o) <- c("valid_folds", "Y", "pred"); o})
+
+    return(out)
+}
 
 #' Create input list for \code{get_risk}
 #' 

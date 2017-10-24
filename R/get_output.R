@@ -110,3 +110,30 @@ get_sl_pred_out <- function(sl_training_folds, Ynames, outer_valid_folds,
     return(sl_pred_out)
 }
 
+#' Helper function to get super learner predictions formatted properly.
+#' @keywords internal 
+get_learner_pred_out <- function(training_folds, Ynames, outer_valid_folds, 
+                            all_fit_tasks, all_fits, learner, 
+                            sl_control, V){
+  
+    if(!is.null(outer_valid_folds)){
+        # evaluates in get_y_weight_input
+        # where we want to get sl predictions on the fold that was held out of 
+        # the fitting of this sl, to use to get weights
+        inner_valid_folds <- (1:V)[-c(training_folds, outer_valid_folds)]        
+    }else{
+        # evaluates in get_risk and get_risk_sl
+        inner_valid_folds <- (1:V)[-training_folds]
+    }
+  
+    # find fits corresponding with train_matrix[,x]
+    fit_idx <- sapply(Ynames, search_fits_for_learner, training_folds = training_folds, 
+                      fits = all_fit_tasks,
+                      simplify = FALSE, learner = learner)
+
+    # get prediction matrix
+    pred <- unlist(all_fits[[fit_idx[[1]]]]$pred, use.names = FALSE)
+
+    return(pred)
+}
+

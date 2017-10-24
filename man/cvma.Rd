@@ -10,7 +10,8 @@ cvma(Y, X, V = 5, learners, sl_control = list(ensemble_fn =
   0.05), y_weight_control = list(ensemble_fn = "ensemble_linear", weight_fn =
   "weight_y_convex", optim_risk_fn = "optim_risk_y_r2", cv_risk_fn =
   "cv_risk_y_r2", alpha = 0.05), return_outer_weight = TRUE,
-  return_outer_sl = TRUE, return_all_y = TRUE, scale = FALSE)
+  return_outer_sl = TRUE, return_all_y = TRUE, return_all_learners = TRUE,
+  scale = FALSE)
 }
 \arguments{
 \item{Y}{A matrix or data.frame of outcomes}

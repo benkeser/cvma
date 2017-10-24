@@ -80,6 +80,7 @@ cvma <- function(Y, X, V = 5, learners,
                       return_outer_weight = TRUE,
                       return_outer_sl = TRUE,
                       return_all_y = TRUE,
+                      return_all_learners = TRUE,
                       scale=FALSE
                       ){
     
@@ -170,15 +171,26 @@ cvma <- function(Y, X, V = 5, learners,
         outer_weight <- NULL
     }
 
-    # get CV risk for each outcome 
+    # get CV risk for each learner and each outcome 
     if(return_all_y){
-        outer_sl_tasks <- make_outer_sl_task_list(Ynames = colnames(Ymat), V = V)
-        risk_all_y <- lapply(outer_sl_tasks, FUN = get_risk_sl, 
-                             Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
-                             all_fits = all_fits, all_sl = all_sl,
-                             folds = folds, sl_control = sl_control, learners = learners)
+      outer_sl_tasks <- make_outer_sl_task_list(Ynames = colnames(Ymat), V = V)
+      risk_all_y <- lapply(outer_sl_tasks, FUN = get_risk_sl, 
+                           Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
+                           all_fits = all_fits, all_sl = all_sl,
+                           folds = folds, sl_control = sl_control, learners = learners)
     }else{
         risk_all_y <- NULL
+    }
+
+    if(return_all_learners){
+      outer_learner_tasks <- make_outer_learner_task_list(Ynames = colnames(Ymat),
+                                                          V = V, learners = learners)
+      risk_all_learners <- lapply(outer_learner_tasks, FUN = get_risk_learner, 
+                           Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
+                           all_fits = all_fits, all_sl = all_sl,
+                           folds = folds, sl_control = sl_control, learners = learners)
+    }else{
+      risk_all_learners <- NULL
     }
 
     # format output
@@ -187,6 +199,8 @@ cvma <- function(Y, X, V = 5, learners,
                 outer_weight = outer_weight,
                 inner_weight = all_weight, 
                 cv_assoc_all_y = risk_all_y,
+                cv_assoc_all_learners = risk_all_learners,
+                folds = folds, 
                 y_names = colnames(Ymat))
     class(out) <- "cvma"
     return(out)

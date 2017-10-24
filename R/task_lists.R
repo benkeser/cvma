@@ -9,6 +9,24 @@ make_outer_sl_task_list <- function(Ynames, V){
     return(out)
 }
 
+#' Helper function to make a task list for computing cv risks of learners
+#' @keywords internal
+make_outer_learner_task_list <- function(Ynames, V, learners){
+    all_training <- 1:V
+    out <- vector(mode = "list", length = length(Ynames)*length(learners))
+    ct <- 0
+    for(y in Ynames){
+        for(l in learners){
+            ct <- ct + 1
+            out[[ct]] <- list(training_folds = all_training,
+                              SL_wrap = l,
+                              Yname = y)
+        }
+    }
+    names(out) <- NULL    
+    return(out)
+}
+
 #' Helper function to make a task list for computing outcome weights
 #' @keywords internal 
 make_y_weight_task_list <- function(V){
