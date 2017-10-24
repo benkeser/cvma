@@ -80,3 +80,16 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 	}
 }
 
+
+#' Get predictions on cvma object
+#' 
+#' @param object Object of class \code{cvma}
+#' @param newdata A \code{data.frame} of predictors on which to obtain predictions
+#' @export
+#' @examples
+#' # TO DO: Add examples here
+
+predict.cvma <- function(object, newdata, ...){
+
+}
+

@@ -50,6 +50,6 @@ test_that("AUC with weight convex throws an error", {
   learners = c("SL.glm","SL.mean")
   
   expect_error(broken_fit <- cvma(Y,X,V=5,learners=learners,sl_control=sl_control,y_weight_control=y_weight_control),
-               "Risk_y_auc requires all composite outcome to be either 0 or 1.")
+               "risk_y_auc requires all composite outcome to be either 0 or 1.")
 })
 
