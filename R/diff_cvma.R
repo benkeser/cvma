@@ -9,6 +9,24 @@
 #' @export
 #' @importFrom stats cov
 #' @return Estimates, CI, and p-value
+#' @examples
+#' set.seed(1234)
+#' library(SuperLearner)
+#' library(future)
+#' X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+#' Y1 <- rnorm(100, X$x1 + X$x2, 1)
+#' Y2 <- rnorm(100, X$x1 + X$x2, 3)
+#' Y <- data.frame(Y1 = Y1, Y2 = Y2)
+#' fit1 <- cvma(Y = Y, X = X, V = 5, 
+#'                 learners = c("SL.glm","SL.mean"))
+#' fit2 <- cvma(Y = Y, X = X[,-2,drop = FALSE], V = 5, 
+#'                 learners = c("SL.glm","SL.mean"))
+#' # difference in R^2
+#' compare_cvma(fit1, fit2, "diff")
+#' # ratio of R^2, symmetric CI
+#' compare_cvma(fit1, fit2, "ratio")
+#' # ratio of R^2, CI symmetric on log-scale
+#' compare_cvma(fit1, fit2, "logratio")
 
 compare_cvma <- function(object1, object2, 
                          contrast = "diff",
@@ -90,7 +108,3 @@ compare_control_logratio <- function(){
 	     },
 	     null = 0)
 }
-
-
-
-
