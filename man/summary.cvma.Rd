@@ -13,8 +13,8 @@ with each outcome.}
 \arguments{
 \item{object}{An object of class \code{cvma}}
 
-\item{aspect}{Can be \code{"weights"}, \code{"superlearner"}, or
-\code{"outcomes"} to summarize}
+\item{aspect}{Can be \code{"weights"}, \code{"superlearner"},
+\code{"outcomes"}, or \code{"learners"}}
 
 \item{...}{Other options (not currently used)}
 }

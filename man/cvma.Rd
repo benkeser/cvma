@@ -41,6 +41,9 @@ layer (i.e., V-fold super learner).}
 \item{return_all_y}{Whether to return cross-validated performance measures for each
 column of \code{Y}.}
 
+\item{return_all_learners}{Whether to return cross-validated performance measures for 
+each learner.}
+
 \item{scale}{Standardize each outcome to be mean zero with standard deviation 1.}
 }
 \value{

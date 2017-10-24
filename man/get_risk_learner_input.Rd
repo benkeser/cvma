@@ -13,6 +13,8 @@ get_risk_learner_input(split_Y, Yname, learner, all_fits, V, folds, all_sl,
 \item{Yname}{The names of the outcomes. Used to search \code{all_fits}
 and \code{all_sl}.}
 
+\item{learner}{Name of super learner wrapper.}
+
 \item{all_fits}{List of all learner fits.}
 
 \item{V}{Number of folds.}
@@ -27,8 +29,6 @@ search over all_fits).}
 \item{all_weight}{List of all outcome weight fits.}
 
 \item{sl_control}{List of super learner controls.}
-
-\item{learners}{Vector of super learner vectors.}
 }
 \value{
 List with each entry a list with entries: valid_fold (the number of the

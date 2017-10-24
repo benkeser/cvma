@@ -194,7 +194,7 @@ get_risk_sl_input <- function(split_Y, Yname, all_fits, learners, V,
 #' @param all_sl List of all super learner weight fits. 
 #' @param all_weight List of all outcome weight fits. 
 #' @param V Number of folds.
-#' @param learners Vector of super learner vectors.
+#' @param learner Name of super learner wrapper.
 #' @param sl_control List of super learner controls.
 #' @param folds Cross-validation folds.
 #' 

@@ -36,6 +36,8 @@
 #' layer (i.e., V-fold super learner).
 #' @param return_all_y Whether to return cross-validated performance measures for each
 #' column of \code{Y}. 
+#' @param return_all_learners Whether to return cross-validated performance measures for 
+#' each learner. 
 #' @param scale Standardize each outcome to be mean zero with standard deviation 1.
 #' 
 #' @return If \code{return_outer_sl} is TRUE, it will return for each outcome Super Learner fit weights 
@@ -81,7 +83,7 @@ cvma <- function(Y, X, V = 5, learners,
                       return_outer_sl = TRUE,
                       return_all_y = TRUE,
                       return_all_learners = TRUE,
-                      scale=FALSE
+                      scale = FALSE
                       ){
     
     # get initial parameter values
@@ -97,13 +99,13 @@ cvma <- function(Y, X, V = 5, learners,
       Ymat <- data.matrix(Y)
     }
     
-    #Checks
+    # Checks
     if(!all(apply(Ymat,2,function(x) { all(x %in% 0:1) })) & sl_control$optim_risk_fn == "optim_risk_sl_auc"){
       stop("Outcome should be binary.")
     }
     
     if(y_weight_control$weight_fn == "weight_y_convex" & y_weight_control$optim_risk_fn == "optim_risk_y_auc"){
-      stop("Risk_y_auc requires all composite outcome to be either 0 or 1.")
+      stop("risk_y_auc requires all composite outcome to be either 0 or 1.")
     }
 
     # correct names if none
@@ -201,7 +203,8 @@ cvma <- function(Y, X, V = 5, learners,
                 cv_assoc_all_y = risk_all_y,
                 cv_assoc_all_learners = risk_all_learners,
                 folds = folds, 
-                y_names = colnames(Ymat))
+                y_names = colnames(Ymat),
+                learners = learners)
     class(out) <- "cvma"
     return(out)
 } 

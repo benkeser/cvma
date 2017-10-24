@@ -18,8 +18,8 @@ print.cvma <- function(x, ...){
 #' with each outcome. 
 #' 
 #' @param object An object of class \code{cvma}
-#' @param aspect Can be \code{"weights"}, \code{"superlearner"}, or
-#' \code{"outcomes"} to summarize 
+#' @param aspect Can be \code{"weights"}, \code{"superlearner"},
+#' \code{"outcomes"}, or \code{"learners"}
 #' @param ... Other options (not currently used)
 #' 
 #' @export
@@ -59,6 +59,23 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 			tmp <- data.frame(fit[c("learner_names","learner_risks","sl_weight")])
 		})
 		names(out) <- object$y_names
+		return(out)
+	}else if(aspect == "learners"){
+		if(is.null(object$cv_assoc_all_learners)){
+			stop("To summarize learners, return_all_learners must be TRUE in call to cvma.")
+		}
+		n_learners <- length(object$cv_assoc_all_learners) / length(object$y_names)
+		tmp_out <- split(object$cv_assoc_all_learners, sort(rep(1:length(object$y_names), n_learners)))
+		names(tmp_out) <- object$y_names
+		out <- lapply(tmp_out, function(tmpo){
+			tmp <- lapply(tmpo, function(cva){
+				data.frame(cva[c("SL_wrap","cv_measure","ci_low","ci_high","p_value")])
+			})
+			tmp2 <- Reduce(rbind, tmp)
+			tmp2 <- tmp2[order(-tmp2$cv_measure),]
+			row.names(tmp2) <- NULL
+			tmp2
+		})
 		return(out)
 	}
 }
