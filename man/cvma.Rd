@@ -9,9 +9,9 @@ cvma(Y, X, V = 5, learners, sl_control = list(ensemble_fn =
   "weight_sl_convex", cv_risk_fn = "cv_risk_sl_r2", family = gaussian(), alpha =
   0.05), y_weight_control = list(ensemble_fn = "ensemble_linear", weight_fn =
   "weight_y_convex", optim_risk_fn = "optim_risk_y_r2", cv_risk_fn =
-  "cv_risk_y_r2", alpha = 0.05), return_outer_weight = TRUE,
-  return_outer_sl = TRUE, return_all_y = TRUE, return_all_learners = TRUE,
-  scale = FALSE)
+  "cv_risk_y_r2", alpha = 0.05), return_control = list(outer_weight = TRUE,
+  outer_sl = TRUE, all_y = TRUE, all_learner_assoc = TRUE, all_learner_fits =
+  FALSE), scale = FALSE)
 }
 \arguments{
 \item{Y}{A matrix or data.frame of outcomes}
@@ -31,18 +31,13 @@ cv_risk_fn, family. Available functions can be viewed with \code{sl_control_opti
 cv_risk_fn. Available functions can be viewed with \code{y_weight_control_options()}. See
 \code{?y_weight_control_options} for more on how users may supply their own functions.}
 
-\item{return_outer_weight}{Whether to return estimate of outcome
-weights the outer most cross-validation layer (i.e, based on V - 1 cross-validated 
-super learner risks).}
-
-\item{return_outer_sl}{Whether to return the super learner for the outer most cross-validation
-layer (i.e., V-fold super learner).}
-
-\item{return_all_y}{Whether to return cross-validated performance measures for each
-column of \code{Y}.}
-
-\item{return_all_learners}{Whether to return cross-validated performance measures for 
-each learner.}
+\item{return_control}{A list with named entries \code{outer_weight} (whether to return outcome
+weights for outer-most fold of CV, default \code{TRUE}), \code{outer_sl} (whether to return the 
+super learner fit for each outcome on all the data), \code{all_y} (whether to return cross-validated
+performance metrics for all outcomes), \code{all_learner_assoc} (whether to return cross-validation
+performance metrics for all learners), \code{all_learner_fits} (whether to return all learner fits, 
+which, while memory intensive, can be helpful if association measures based on different outcome 
+weighting schemes are desired).}
 
 \item{scale}{Standardize each outcome to be mean zero with standard deviation 1.}
 }
@@ -84,8 +79,6 @@ Y2 <- rnorm(100, X$x1 + X$x2, 3)
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
 fit <- cvma(Y = Y, X = X, V = 5, 
                 learners = c("SL.glm","SL.mean"))
-
-
 }
 \seealso{
 predict method

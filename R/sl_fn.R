@@ -235,6 +235,68 @@ cv_risk_sl_r2 <- function(input, sl_control){
                 ic = as.numeric(ic)))
 }
 
+
+#' Cross-validated negative log-likelihood of the super learner
+#' 
+#' In general, the function passed to \code{sl_control$cv_risk} should expect a list
+#' of outcomes and predictions in validation folds. The function should return a 
+#' list with names cv_measure, ci_low, ci_high, and p_value. The output of this function 
+#' is returned irrespective of the names of the list; however, the names are 
+#' necessary for \code{print} methods to work properly.
+#' 
+#' Confidence intervals are computed for negative log-likelihood. The p-value
+#' is for the one-sided hypothesis test that cross-validated negative log-likelihood
+#' is less than -log(0.5), which is what the value of negative log-likelihood if 
+#' every observation were predicted to have Y = 1 with probability 0.5. 
+#' 
+#' @param input List where each entry corresponds to a validation fold. Each entry is a list
+#' with entries: Y (univariate outcome for this validation fold), pred (matrix of predictions
+#' from \code{learner} and columns correspond to different \code{leaner}s). 
+#' @param sl_control List of super learner control options. 
+#' 
+#' @export
+#' @importFrom stats qnorm pnorm
+#' @return A list with named entries cv_measure, ci_low, ci_high, and p_value. The list will
+#' be returned by \code{max_assoc} irrespective of the named entries; however, the \code{print}
+#' methods will only work if the function returns the above names. 
+#' 
+#' @examples
+#'
+#' # simulate data with proper format
+#' input <- list(list(valid_folds=1, Y = rbinom(50,1,0.5),pred = runif(50,0,1)),
+#'               list(valid_folds=2, Y = rbinom(50,1,0.5),pred = runif(50,0,1))) 
+#'      
+#' # alpha value                        
+#' sl_control= list(alpha= 0.05)    
+#' 
+#' # get risk 
+#' cv_risk <- cv_risk_sl_nloglik(input, sl_control)                         
+
+cv_risk_sl_nloglik <- function(input, sl_control){
+    # mse
+    nloglik_list <- unlist(lapply(input, FUN = function(i){
+        i$pred[i$pred == 0] <- .Machine$double.neg.eps
+        i$pred[i$pred == 1] <- 1 - .Machine$double.neg.eps
+        -mean(i$Y * log(unlist(i$pred)) + (1 - i$Y) * log(1 - unlist(i$pred)))
+    }), use.names = FALSE)
+    cv_nloglik <- mean(nloglik_list)
+
+    # var
+    all_y <- unlist(lapply(input, "[", "Y"), use.names = FALSE)
+    all_pred <- unlist(lapply(input, "[", "pred"), use.names = FALSE)
+    ic_nloglik <- matrix(ifelse(all_y == 1, -log(all_pred), -log(1 - all_pred)) - cv_nloglik, nrow = 1)
+
+    se_cv_nloglik <- as.numeric(sqrt(tcrossprod(ic_nloglik))/length(ic_nloglik))
+        
+    ci_low <- cv_nloglik - stats::qnorm(1-(sl_control$alpha/2)) * se_cv_nloglik
+    ci_high <- cv_nloglik + stats::qnorm(1-(sl_control$alpha/2)) * se_cv_nloglik
+    
+    p_value <- stats::pnorm((cv_nloglik + log(0.5))/se_cv_nloglik)
+    
+    return(list(cv_measure = cv_nloglik, ci_low = ci_low, ci_high = ci_high, p_value = p_value,
+                ic = as.numeric(ic_nloglik)))
+}
+
 #' Cross-validated area under the receiver operating characteristic curve
 #' for predictions based on super learner
 #' 
@@ -268,8 +330,8 @@ cv_risk_sl_r2 <- function(input, sl_control){
  
 cv_risk_sl_auc <- function(input, sl_control){
  
-  all_y <- unlist(lapply(input, '[[', "Y"))
-  all_pred <- unlist(lapply(input, '[[', "pred"))
+  all_y <- lapply(input, '[[', "Y")
+  all_pred <- lapply(input, function(x){ unlist(x$pred, use.names = FALSE) })
   
   cv_auc_fit <- ci.cvAUC_withIC(labels = all_y, predictions = all_pred, confidence = 1 - sl_control$alpha)
   

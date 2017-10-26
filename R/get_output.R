@@ -33,7 +33,11 @@ get_Y_out <- function(x, split_Y, training_folds, V = NULL){
         valid_folds <- (1:V)[-x]
     }
     valid_y <- get_valid_y(split_Y, valid_folds)
-    return(Reduce(rbind, valid_y))
+    tmp <- Reduce(rbind, valid_y)
+    if(is.null(dim(tmp))){
+        tmp <- matrix(tmp, ncol = 1)
+    }
+    return(tmp)
 }
 
 #' Helper function to format the validation folds used in
@@ -64,8 +68,8 @@ get_pred_out <- function(fit_idx, learner_folds = NULL, sl_folds = NULL,
         # where we want to identify validation folds for the super learner 
         valid_folds <- sl_folds[-which(sl_folds %in% learner_folds)]            
     }
-    Z <- Reduce(cbind, lapply(all_fits[fit_idx], get_valid_pred_from_fit, 
-                              valid_folds = valid_folds))
+    Z <- data.frame(Reduce(cbind, lapply(all_fits[fit_idx], get_valid_pred_from_fit, 
+                              valid_folds = valid_folds)))
     colnames(Z) <- learners
     return(Z)
 }
@@ -105,7 +109,7 @@ get_sl_pred_out <- function(sl_training_folds, Ynames, outer_valid_folds,
         do.call(sl_control$ensemble_fn, args = list(weight = s, pred = p))
     }, SIMPLIFY = FALSE)
         
-    sl_pred_out <- Reduce(cbind, sl_pred_list)
+    sl_pred_out <- data.frame(Reduce(cbind, sl_pred_list))
 
     return(sl_pred_out)
 }
