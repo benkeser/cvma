@@ -21,7 +21,7 @@
 #' @examples
 #' 
 #' #Simulate data with proper format:
-#' input <- list(Y = cbind(rnorm(50), rnorm(50)),pred = cbind(rnorm(50), rnorm(50)))
+#' input <- list(Y = cbind(rnorm(50), rnorm(50)), pred = cbind(rnorm(50), rnorm(50)))
 #' 
 #' # made up weights
 #' y_weight <- c(0.5, 0.5)
@@ -405,6 +405,8 @@ weight_y_01 <- function(input, y_weight_control){
 
     # find lowest risk
     final_weight <- rep(0, J)
-    final_weight[which.min(risks)] <- 1
-    return(list(weight = final_weight))
+    min_risk <- which.min(risks)
+    final_weight[min_risk] <- 1
+
+    return(list(weight = final_weight, ybar = mean(all_y[,min_risk])))
 }

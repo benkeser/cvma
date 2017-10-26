@@ -29,15 +29,13 @@
 #' @param y_weight_control A list with named entries ensemble_fn, optim_risk_fn, weight_fn,
 #' cv_risk_fn. Available functions can be viewed with \code{y_weight_control_options()}. See
 #' \code{?y_weight_control_options} for more on how users may supply their own functions.  
-#' @param return_outer_weight Whether to return estimate of outcome
-#' weights the outer most cross-validation layer (i.e, based on V - 1 cross-validated 
-#' super learner risks).
-#' @param return_outer_sl Whether to return the super learner for the outer most cross-validation
-#' layer (i.e., V-fold super learner).
-#' @param return_all_y Whether to return cross-validated performance measures for each
-#' column of \code{Y}. 
-#' @param return_all_learners Whether to return cross-validated performance measures for 
-#' each learner. 
+#' @param return_control A list with named entries \code{outer_weight} (whether to return outcome
+#' weights for outer-most fold of CV, default \code{TRUE}), \code{outer_sl} (whether to return the 
+#' super learner fit for each outcome on all the data), \code{all_y} (whether to return cross-validated
+#' performance metrics for all outcomes), \code{all_learner_assoc} (whether to return cross-validation
+#' performance metrics for all learners), \code{all_learner_fits} (whether to return all learner fits, 
+#' which, while memory intensive, can be helpful if association measures based on different outcome 
+#' weighting schemes are desired). 
 #' @param scale Standardize each outcome to be mean zero with standard deviation 1.
 #' 
 #' @return If \code{return_outer_sl} is TRUE, it will return for each outcome Super Learner fit weights 
@@ -65,8 +63,7 @@
 #' Y <- data.frame(Y1 = Y1, Y2 = Y2)
 #' fit <- cvma(Y = Y, X = X, V = 5, 
 #'                 learners = c("SL.glm","SL.mean"))
-#' 
-#' 
+
 cvma <- function(Y, X, V = 5, learners, 
                       sl_control = list(ensemble_fn = "ensemble_linear",
                                    optim_risk_fn = "optim_risk_sl_se",
@@ -79,10 +76,11 @@ cvma <- function(Y, X, V = 5, learners,
                                   optim_risk_fn = "optim_risk_y_r2",
                                   cv_risk_fn = "cv_risk_y_r2",
                                   alpha = 0.05),
-                      return_outer_weight = TRUE,
-                      return_outer_sl = TRUE,
-                      return_all_y = TRUE,
-                      return_all_learners = TRUE,
+                      return_control = list(outer_weight = TRUE,
+                                            outer_sl = TRUE,
+                                            all_y = TRUE,
+                                            all_learner_assoc = TRUE,
+                                            all_learner_fits = FALSE),
                       scale = FALSE
                       ){
     
@@ -119,7 +117,7 @@ cvma <- function(Y, X, V = 5, learners,
 
     # all learner fitting tasks
     all_fit_tasks <- make_fit_task_list(Ynames = colnames(Ymat), learners = learners, 
-                                        V = V, return_outer_sl = return_outer_sl)
+                                        V = V, return_outer_sl = return_control$outer_sl)
     
     all_fits <- future::future_lapply(all_fit_tasks, FUN = get_fit, folds = folds, 
                               X = X, Y = Ymat, sl_control = sl_control)
@@ -154,7 +152,7 @@ cvma <- function(Y, X, V = 5, learners,
                      sl_control = sl_control, y_weight_control = y_weight_control, learners = learners) 
 
     # compute outer super learner
-    if(return_outer_sl){
+    if(return_control$outer_sl){
         outer_sl_tasks <- make_outer_sl_task_list(Ynames = colnames(Ymat), V = V)
         all_outer_sl <- lapply(outer_sl_tasks, FUN = get_formatted_sl, 
                            Y = Ymat, V = V, all_fit_tasks = all_fit_tasks,
@@ -166,7 +164,7 @@ cvma <- function(Y, X, V = 5, learners,
     }
 
     # compute outer weights
-    if(return_outer_weight){
+    if(return_control$outer_weight){
         outer_weight <- get_y_weight(task = list(training_folds = 1:V),
                                        Y = Ymat, V = V, Ynames = colnames(Ymat), 
                                        all_fits = all_fits, all_sl = all_sl, 
@@ -178,7 +176,7 @@ cvma <- function(Y, X, V = 5, learners,
     }
 
     # get CV risk for each learner and each outcome 
-    if(return_all_y){
+    if(return_control$all_y){
       outer_sl_tasks <- make_outer_sl_task_list(Ynames = colnames(Ymat), V = V)
       risk_all_y <- lapply(outer_sl_tasks, FUN = get_risk_sl, 
                            Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
@@ -188,7 +186,7 @@ cvma <- function(Y, X, V = 5, learners,
         risk_all_y <- NULL
     }
 
-    if(return_all_learners){
+    if(return_control$all_learner_assoc){
       outer_learner_tasks <- make_outer_learner_task_list(Ynames = colnames(Ymat),
                                                           V = V, learners = learners)
       risk_all_learners <- lapply(outer_learner_tasks, FUN = get_risk_learner, 
@@ -197,6 +195,10 @@ cvma <- function(Y, X, V = 5, learners,
                            folds = folds, sl_control = sl_control, learners = learners)
     }else{
       risk_all_learners <- NULL
+    }
+
+    if(!return_control$all_learner_fits){
+      all_fits <- NULL
     }
 
     # format output
@@ -208,7 +210,9 @@ cvma <- function(Y, X, V = 5, learners,
                 cv_assoc_all_learners = risk_all_learners,
                 folds = folds, 
                 y_names = colnames(Ymat),
-                learners = learners)
+                learners = learners,
+                all_learner_fits = all_fits, 
+                V = V)
     class(out) <- "cvma"
     return(out)
 } 

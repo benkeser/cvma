@@ -61,8 +61,7 @@ summary(fit, "learners")
                                     weight_fn = "weight_y_01",
                                     optim_risk_fn = "optim_risk_y_auc",
                                     cv_risk_fn = "cv_risk_y_auc",
-                                    alpha = 0.05),
-                  return_all_learners = FALSE)
+                                    alpha = 0.05))
 #cvma with AUC:
 set.seed(1234)
 fit2 <- cvma(Y = Y[,-2,drop = FALSE], X = X, V = 5, 
@@ -77,8 +76,27 @@ fit2 <- cvma(Y = Y[,-2,drop = FALSE], X = X, V = 5,
                                   weight_fn = "weight_y_01",
                                   optim_risk_fn = "optim_risk_y_auc",
                                   cv_risk_fn = "cv_risk_y_auc",
-                                  alpha = 0.05),
-                return_all_learners = FALSE)
+                                  alpha = 0.05))
 cvma:::compare_cvma(fit, fit2)
 cvma:::compare_cvma(fit, fit2, contrast = "ratio")
 cvma:::compare_cvma(fit, fit2, contrast = "logratio")
+
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# try out the saving fits option
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+library(cvma)
+library(SuperLearner)
+library(future)
+set.seed(1234)
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rnorm(100, X$x1 + X$x2, 1)
+Y2 <- rnorm(100, X$x1 + X$x2, 3)
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+fit <- cvma(Y = Y, X = X, V = 5, learners = c("SL.glm","SL.mean","SL.gam"),
+            return_control = list(outer_weight = TRUE,
+                                            outer_sl = TRUE,
+                                            all_y = TRUE,
+                                            all_learner_assoc = TRUE,
+                                            all_learner_fits = TRUE))
+

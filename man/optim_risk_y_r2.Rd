@@ -32,7 +32,7 @@ In this case, the function computes cross-validated nonparametric R-squared.
 \examples{
 
 #Simulate data with proper format:
-input <- list(Y = cbind(rnorm(50), rnorm(50)),pred = cbind(rnorm(50), rnorm(50)))
+input <- list(Y = cbind(rnorm(50), rnorm(50)), pred = cbind(rnorm(50), rnorm(50)))
 
 # made up weights
 y_weight <- c(0.5, 0.5)
