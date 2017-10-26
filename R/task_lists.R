@@ -39,6 +39,9 @@ make_y_weight_task_list <- function(V){
 #' @keywords internal
 make_sl_task_list <- function(Ynames, V, fold_fits = c(V-1, V-2)){
     # get super learner fit on all 1-way hold-outs and 2-way hold-outs
+    if(length(Ynames) == 1){
+        fold_fits <- V - 1
+    }
     all_training <- NULL
     for(v in fold_fits){
         all_training <- c(all_training, utils::combn(V, v, simplify = FALSE))
@@ -57,7 +60,19 @@ make_fit_task_list <- function(Ynames, learners, V, return_outer_sl,
                                fold_fits = NULL){
     out <- list()
     if(is.null(fold_fits)){
-        fold_fits <- c(V-1,V-2,V-3)        
+        # if more than 1 learner, then assume superlearner in which case
+        # we need V-3 fold learner fits
+        if(length(learners) > 1 & length(Ynames) > 1){
+            fold_fits <- c(V - 1, V - 2, V - 3)        
+        }else if(length(learners) + length(Ynames) > 2){
+            # there's either multiple outcomes (in which case CV is needed 
+            # to determine outcome weights) or there's multiple learners (in which
+            # case CV is needed to make super learners)
+            fold_fits <- c(V - 1, V - 2)
+        }else{
+            # there's only one outcome and one learner
+            fold_fits <- V - 1
+        }
     }
     # if sl return is requested, we'll need learner fits on all data
     if(return_outer_sl){

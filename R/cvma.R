@@ -135,7 +135,11 @@ cvma <- function(Y, X, V = 5, learners,
                             learners = learners, sl_control = sl_control)
 
     # all outcome weight tasks
-    all_y_weight_tasks <- make_y_weight_task_list(V = V)
+    if(length(colnames(Ymat)) > 1){
+      all_y_weight_tasks <- make_y_weight_task_list(V = V)      
+    }else{
+      all_y_weight_tasks <- list(list(training_folds = 1:V))
+    }
     all_weight <- lapply(all_y_weight_tasks, FUN = get_y_weight, 
                                  Y = Ymat, V = V, Ynames = colnames(Ymat), 
                                  all_fits = all_fits, all_sl = all_sl, 
@@ -143,7 +147,7 @@ cvma <- function(Y, X, V = 5, learners,
                                  sl_control = sl_control, y_weight_control = y_weight_control, folds = folds,
                                  learners = learners)
 
-    # get risk input
+    # get risk of entire procedure
     risk <- get_risk(Y = Y, V = V, all_fit_tasks = all_fit_tasks, 
                      all_fits = all_fits, all_sl = all_sl, folds = folds, 
                      all_weight = all_weight, 

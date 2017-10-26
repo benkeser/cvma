@@ -326,13 +326,15 @@ weight_y_convex <- function(input, y_weight_control){
     all_pred <- Reduce(rbind, lapply(input, '[[', "pred"))
     all_y <- Reduce(rbind, lapply(input, '[[', "Y"))
     solnp_input <- list(Y = all_y, pred = all_pred)
-
+    if(dim(all_y)[2] > 1){    
     # find weights
-    fit <- Rsolnp::solnp(pars=rep(1/J, J), fun = eval(parse(text=y_weight_control$optim_risk_fn)), 
-                         LB=rep(0, J), UB=rep(1, J), eqfun = constraint, 
-                         control = list(trace = 0), eqB = 0, input = solnp_input, 
-                         y_weight_control = y_weight_control)
-
+        fit <- Rsolnp::solnp(pars=rep(1/J, J), fun = eval(parse(text=y_weight_control$optim_risk_fn)), 
+                             LB=rep(0, J), UB=rep(1, J), eqfun = constraint, 
+                             control = list(trace = 0), eqB = 0, input = solnp_input, 
+                             y_weight_control = y_weight_control)
+    }else{
+        fit <- list(pars = 1)
+    }
     # get ybar for the minimized weights
     final_ens_y <- do.call(y_weight_control$ensemble_fn, args = list(weight = fit$pars, pred = all_y))
 

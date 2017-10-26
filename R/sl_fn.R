@@ -268,8 +268,8 @@ cv_risk_sl_r2 <- function(input, sl_control){
  
 cv_risk_sl_auc <- function(input, sl_control){
  
-  all_y <- unlist(lapply(input, '[[', "Y"))
-  all_pred <- unlist(lapply(input, '[[', "pred"))
+  all_y <- lapply(input, '[[', "Y")
+  all_pred <- lapply(input, function(x){ unlist(x$pred, use.names = FALSE) })
   
   cv_auc_fit <- ci.cvAUC_withIC(labels = all_y, predictions = all_pred, confidence = 1 - sl_control$alpha)
   

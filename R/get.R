@@ -87,7 +87,6 @@ get_y_weight <- function(task, Y, V, Ynames, all_fits, all_sl,
                                  all_fit_tasks = all_fit_tasks, V = V, 
                                  sl_control = sl_control,
                                  learners = learners)
-
     y_weight <- do.call(y_weight_control$weight_fn, 
                          args = list(input = input, y_weight_control = y_weight_control))
     out <- c(list(training_folds = task$training_folds), y_weight)
@@ -121,13 +120,16 @@ get_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds, sl_control, learn
     }
     # get input needed to compute sl ensemble weights 
     #Returns validation fold, actual Y outcome, and predicted Y outcome for each learner
-    input <- get_sl_input(split_Y = split_Y, valid_folds = valid_folds,
-                          Yname = task$Yname, V = V, all_fit_tasks = all_fit_tasks, 
-                          all_fits = all_fits, learners = learners)
-    # get sl ensemble weights
-    sl_weight <- do.call(sl_control$weight_fn, 
-                          args = list(input = input, sl_control = sl_control))
-
+    if(length(learners) > 1){
+      input <- get_sl_input(split_Y = split_Y, valid_folds = valid_folds,
+                            Yname = task$Yname, V = V, all_fit_tasks = all_fit_tasks, 
+                            all_fits = all_fits, learners = learners)
+      # get sl ensemble weights
+      sl_weight <- do.call(sl_control$weight_fn, 
+                            args = list(input = input, sl_control = sl_control))
+    }else{
+      sl_weight <- list(weight = 1)
+    }
     out <- list(training_folds = task$training_folds, Yname = task$Yname, sl_weight = sl_weight$weight)
     # get sl predictions on valid_folds folds by searching for when
     # (1:V)[-valid_folds] is training sample
@@ -169,19 +171,24 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
     }
     # get input needed to compute sl ensemble weights 
     input <- get_sl_input(split_Y = split_Y, valid_folds = valid_folds,
-                          Yname = task$Yname, V = V, all_fit_tasks = all_fit_tasks, 
-                          all_fits = all_fits, learners = learners)
-    # get sl ensemble weights
-    sl_weight_list <- do.call(sl_control$weight_fn, 
-                          args = list(input = input, sl_control = sl_control))
-    sl_weight <- sl_weight_list$weight
+                      Yname = task$Yname, V = V, all_fit_tasks = all_fit_tasks, 
+                      all_fits = all_fits, learners = learners)
+    if(length(learners) > 1){
+      # get sl ensemble weights
+      sl_weight_list <- do.call(sl_control$weight_fn, 
+                            args = list(input = input, sl_control = sl_control))
+      sl_weight <- sl_weight_list$weight
+      M <- dim(input[[1]]$pred)[2]
+    }else{
+      M <- 1
+      sl_weight <- 1
+    }
 
     # get risks for each learner
     all_pred <- Reduce(rbind, lapply(input, '[[', "pred"))
     all_y <- Reduce(c, lapply(input, '[[', "Y"))
     risk_input <- list(Y = all_y, pred = all_pred)
 
-    M <- dim(input[[1]]$pred)[2]
     risks <- rep(Inf, M)
     for(m in 1:M){
         weights <- rep(0, M)

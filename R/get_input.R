@@ -33,7 +33,11 @@ get_y_weight_input <- function(split_Y, Ynames,
         training_folds <- 1:V
     }
     # then we need to get fits for columns of this guy
-    train_matrix <- utils::combn(training_folds, V - (length(valid_folds) + 1))
+    if(length(Ynames) > 1){
+        train_matrix <- utils::combn(training_folds, V - (length(valid_folds) + 1))
+    }else{
+        train_matrix <- utils::combn(training_folds, V - 1)
+    }
     # valid_folds <- training_folds[-which(training_folds %in% training_folds)]
     # need to search_fits_for_training_folds, but now for all Y
     # also need to search_sl_for_training_folds
@@ -273,7 +277,7 @@ get_risk_input <- function(split_Y, Ynames, all_fits,
                         V = V, learners = learners)
 
     # Y output
-    Y_list <- apply(train_matrix, 2, get_Y_out, V = V, 
+    Y_list <- lapply(split(train_matrix, col(train_matrix)), get_Y_out, V = V, 
                     split_Y = split_Y, training_folds = NULL)
     
     # fold output 
