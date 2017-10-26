@@ -147,6 +147,85 @@ cv_risk_y_r2 <- function(input, y_weight_control){
                 ic = ic))
 }
 
+
+#' Cross-validated negative log-likelihood for evaluating maximum association. 
+#' 
+#' In general, the function passed to \code{y_weight_control$cv_risk} should expect a list
+#' of outcomes and predictions in validation folds, in addition to a list called
+#' \code{y_weight} that contains the outcome weights (computed in the training sample)
+#' corresponding to this validation fold and any other information needed by 
+#' \code{y_weight_control$cv_risk} (e.g., anything needed to compute confidence 
+#' intervals -- in this case the marginal mean of the composite outcome in the 
+#' training sample). The function should return a list with names cv_measure, ci_low,
+#' ci_high, and p_value. The output of this function is returned irrespective of the
+#' names of the list; however, the names are necessary for \code{print} methods to 
+#' work properly.
+#' 
+#' Confidence intervals are computed for negative log-likelihood. The p-value
+#' is for the one-sided hypothesis test that cross-validated negative log-likelihood
+#' is less than -log(0.5), which is what the value of negative log-likelihood if 
+#' every observation were predicted to have Y = 1 with probability 0.5. 
+#' 
+#' @param input A list where each entry corresponds to a validation fold. Each entry is a list
+#' with entries: Y (matrix of outcomes for this validation fold), 
+#' pred (matrix of super learner predictions for each outcomes with columns corresponding to 
+#' different outcomes). 
+#' @param y_weight_control Composite outcome weight control options. 
+#' @export
+#' @importFrom stats qnorm pnorm
+#' @return List with named components cv_measure (cross-validated negative log-liklihood), ci_low (lower
+#' 100(1 - \code{y_weight_control$alpha})\% CI), ci_high (upper
+#' 100(1 - \code{y_weight_control$alpha})\% CI), p_value
+#' 
+#' @examples
+#' 
+#' # simulate data with proper format
+#' input <- list(list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)), 
+#'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
+#'                    y_weight = list(weight = c(0.5, 0.5), ybar=0.5)),
+#'               list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5)),
+#'                    pred = cbind(runif(50,0,1), runif(50,0,1)),
+#'                    y_weight = list(weight = c(0.25, 0.75), ybar=0.5)))
+#'                    
+#' # linear combination of outcomes
+#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
+#'
+#' # get risk   
+#' cv_risk <- cv_risk_y_nloglik(input, y_weight_control)                                       
+
+cv_risk_y_nloglik <- function(input, y_weight_control){
+    # get ensemble y
+    ens_y <- lapply(input, function(i){
+        do.call(y_weight_control$ensemble_fn, args = list(weight = i$y_weight$weight, pred = i$Y))  
+    })
+
+    # get ensemble p
+    ens_p <- lapply(input, function(i){
+        do.call(y_weight_control$ensemble_fn, args = list(weight = i$y_weight$weight, pred = i$pred))  
+    })
+
+    # negative loglik
+    nloglik_list <- unlist(mapply(y = ens_y, p = ens_p, FUN = function(y, p){
+        # replace 0 values
+        p[p == 0] <- .Machine$double.neg.eps
+        p[p == 1] <- 1 - .Machine$double.neg.eps
+        -mean(ifelse(y == 1, log(p), log(1 - p)))
+    }), use.names = FALSE)
+    cv_nloglik <- mean(nloglik_list)
+
+    ic_nloglik <- matrix(ifelse(unlist(ens_y) == 1, -log(unlist(ens_p)), -log(1 - unlist(ens_p))) - cv_nloglik, nrow = 1)
+        
+    se_nloglik <- as.numeric(sqrt(tcrossprod(ic_nloglik))/length(ic_nloglik))
+           
+    ci_low <- cv_nloglik - stats::qnorm(1-(y_weight_control$alpha/2)) * se_nloglik
+    ci_high <- cv_nloglik + stats::qnorm(1-(y_weight_control$alpha/2)) * se_nloglik
+
+    p_value <- stats::pnorm((cv_nloglik + log(0.5))/se_nloglik)
+    
+    return(list(cv_measure = cv_nloglik, ci_low = ci_low, ci_high = ci_high, p_value = p_value,
+                ic = ic_nloglik))
+}
+
 #' Cross-validated area under the receiver operating characteristic curve 
 #' for computing composite outcome weights
 #' 
@@ -203,6 +282,57 @@ optim_risk_y_auc <- function(y_weight, input, y_weight_control){
     return(risk)
 }
 
+
+#' Cross-validated area under the receiver operating characteristic curve 
+#' for computing composite outcome weights
+#' 
+#' In general, the function passed to \code{y_weight_control$optim_risk} should expect a named list
+#' of outcomes (Y) and predictions (pred) in validation folds and should return a criteria by
+#' which outcome weights may be optimized. The weights are input to the function via
+#' \code{y_weight} and are optimized in the \code{y_weight_control$weight_fn}. See
+#' Examples section below for an example of the format of the \code{input} list used
+#' for \code{y_weight_control$optim_risk} functions. 
+#'  
+#' @param y_weight A numeric vector of weights corresponding to each
+#' outcome. Typically, this is what is maximized over in \code{y_weight_control$weight_fn}.
+#' @param input A list with named entries Y (matrix of outcomes for this validation fold) and 
+#' pred (matrix of super learner predictions for each outcomes with columns corresponding to 
+#' different outcomes). 
+#' @param y_weight_control Composite outcome weight control options. 
+#' @export
+#' 
+#' @return Numeric value of negative log-likelihood. 
+#' 
+#' @examples
+#' 
+#' #Simulate data with proper format:
+#' input <- list(Y = cbind(rbinom(50,1,0.5), rbinom(50,1,0.5), rbinom(50,1,0.5)), 
+#' pred = cbind(runif(50,0,1), runif(50,0,1), runif(50,0,1)))
+#' 
+#' #Linear combination of outcomes:
+#' y_weight_control <- list(ensemble_fn = "ensemble_linear")
+#' 
+#' #Example weights:
+#' y_weight<-c(0,1,0)
+#' 
+#' #Get risk:
+#' risk <- optim_risk_y_nloglik(y_weight, input, y_weight_control)
+
+optim_risk_y_nloglik <- function(y_weight, input, y_weight_control){    
+    ens_y <- do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = input$Y))
+    ens_p <- do.call(y_weight_control$ensemble_fn, args = list(weight = y_weight, pred = input$pred))
+    
+    if(!all(unlist(ens_y) %in% c(0,1))){
+        stop("risk_y_auc requires all composite outcome to be either 0 or 1")
+    }
+
+    # replace 0 values
+    ens_p[ens_p == 0] <- .Machine$double.neg.eps
+    ens_p[ens_p == 1] <- 1 - .Machine$double.neg.eps
+
+    risk <- -mean(ifelse(ens_y == 1, log(ens_p), log(1 - ens_p)))
+    return(risk)
+}
 
 #' Cross-validated area under the receiver operating characteristic curve 
 #' for evaluating maximum association. 
