@@ -1,0 +1,98 @@
+---
+title: "A Machine learning-based approach for testing associations with multivariate outcomes"
+author: "David Benkeser and Ivana Malenica"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: intro_cvma_refs.bib
+vignette: >
+  %\VignetteIndexEntry{A Machine learning-based approach for testing associations with multivariate outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+The `cvma` package provides a method for summarizing the strength of association between a set of variables and a multivariate outcome. In particular, `cvma` uses an ensemble machine learning-based approach to detect and quantify the measure of association of nonlinear relationships and covariate interactions. In addition, it allows for testing the strong null hypothesis of no association between a set of variables and a multivariate outcome. Lastly, `cvma` performs variable importance analysis, and therefore summarizes each groups' association with the outcome.
+
+---
+
+##Installing and loading the package 
+
+In the following sections, we examine the use of `cvma` in a variety of simple examples. The package can be installed as follows:
+
+```{r install_pkg}
+if (!("cvma" %in% installed.packages())) {
+  devtools::install_github("benkeser/cvma")
+}
+```
+
+Once the package is installed, we can load it using the following command:
+
+```{r load_pkg}
+suppressMessages(library(cvma))
+```
+
+---
+
+## 
+
+[@vdl2007super]
+
+## Variable Importance 
+
+Instead of assessing the overall summary of association between $X$ and $Y$, one might be interested in quantifying the relative importance of each component of $X$. The function `compare_cvma` function computes the differences in the estimated association between $X$ and $Y$ when considering different sets of variables. In essence, the proposed method is similar to well known random forests, in that it measures the change in predictive performance with and without each predictor being considered [@breiman2001]. We emphasize that the method implemented in `compare_cvma` yields straightforward, asymptotically justified inference, as opposed to many existing variable importance methods.  
+
+Once again, we simulate a simple data structure in order to illustrate how to use `compare_cvma` function to assess variable importance:
+
+```{r sim_data var_importance}
+set.seed(1234)
+
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5), x3=runif(n=100,0,5))
+Y1 <- rnorm(100, X$x1 + X$x2, 1)
+Y2 <- rnorm(100, X$x1 + X$x2 + X$x3, 3)
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+
+```
+
+For computational simplicity of this example, we only look at low-dimensional $X$ and $Y$, and fit with simple learners and $V=10$. To assess the importance of variable $x3$ with $x3 \in X$, we repeat the procedure described in the previous section but restrict to variables not in this subset. Therefore, we obtain an estimate of the cross-validated performance measure for the composite prediction algorithm based on a subset of variables, as well as when all variables are used. First we fit data with all variables in $X$:
+
+```{r sep_fit1 var_importance}
+fit1 <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean"))
+```
+
+Then, we repeat the procedure restricting to variables not in the subset $\{x3\}$ of $X$:
+
+```{r sep_fit2 var_importance}
+fit2 <- cvma(Y = Y, X = X[,-3], V = 10, learners = c("SL.glm","SL.mean"))
+```
+
+We are now ready to assess the variable importance of $x3$ for association between $X$ and $Y$. The package `cvma` provides 3 different options for the type of comparison to be made. With $R^2$ as the example metric, we can look at the differences in $R^2$ between the two fits using the following command:
+
+```{r diff var_importance}
+fit<-compare_cvma(fit1, fit2, contrast = "diff")
+fit
+```
+
+The output of `compare_cvma` includes the contrast measure, associated confidence interval for $1-\alpha$, and p-value. In addition, we can look at the ratio of $R^2$ instead, with symmetric CI. 
+```{r ratio var_importance}
+fit<-compare_cvma(fit1, fit2, contrast = "ratio")
+fit
+```
+
+Finally, we can also assess variable importance using the ratio of $R^2$, with symmetric CI on the log-scale:
+
+```{r logratio var_importance}
+fit<-compare_cvma(fit1, fit2, contrast = "logratio")
+fit
+```
+
+## Session Information
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+---
+
+## References
+

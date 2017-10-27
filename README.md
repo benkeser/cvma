@@ -37,7 +37,7 @@ If you encounter any bugs or have any specific feature requests, please [file an
 Example
 -------
 
-This minimal example shows how to use `cvma` with very simple, simulated data set. To start with, we use the nonparametric R^2 to evaluate the strength of association between a set of variables and a multivariate outcome:
+This minimal example shows how to use `cvma` with very simple, simulated data set. For more examples and detailed explanations, we refer the user to the vignette. To start with, we use the nonparametric R^2 to evaluate the strength of association between a set of variables and a multivariate outcome:
 
 ``` r
 suppressMessages(library(cvma))
@@ -52,13 +52,14 @@ Y <- data.frame(Y1 = Y1, Y2 = Y2)
 #cvma with nonparametric R^2:
 fit <- cvma(Y = Y, X = X, V = 10, 
                 learners = c("SL.glm","SL.mean"))
+fit
+#>   cv_measure    ci_low   ci_high      p_value
+#> 1  0.7648338 0.6616586 0.8365464 3.120828e-15
 ```
 
 The following example evaluates the strength of association using AUC:
 
 ``` r
-suppressMessages(library(cvma))
-set.seed(1234)
 
 #Simulate data:
 X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
@@ -80,6 +81,9 @@ fit <- cvma(Y = Y, X = X, V = 5,
                                   optim_risk_fn = "optim_risk_y_auc",
                                   cv_risk_fn = "cv_risk_y_auc",
                                   alpha = 0.05))
+fit
+#>   cv_measure    ci_low   ci_high   p_value
+#> 1  0.3379673 0.1823169 0.4936178 0.9793412
 ```
 
 Variable importance
@@ -88,7 +92,6 @@ Variable importance
 The cross-validated performance of two fits can be compared using the `compare_cvma` function. This can be used to define a variable importance measure for a set of variables.
 
 ``` r
-set.seed(1234)
 
 #Simulate data:
 X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
@@ -105,17 +108,17 @@ fit2 <- cvma(Y = Y, X = X[, -2, drop = FALSE], V = 10,
 # difference in cross-validated R^2 for the two fits
 compare_cvma(fit1, fit2)
 #> $contrast
-#> [1] 0.4874491
+#> [1] 0.4587962
 #> 
 #> $ci_low
-#> [1] 0.3205906
+#> [1] 0.3195792
 #> 
 #> $ci_high
-#> [1] 0.6543077
+#> [1] 0.5980131
 #> 
 #> $p_value
 #>              [,1]
-#> [1,] 1.030055e-08
+#> [1,] 1.052884e-10
 ```
 
 License
