@@ -41,7 +41,7 @@
 #' outcome cross-validated measure (nonparametric R-squared or AUC), confidence interval and associated
 #' p-value. 
 #' 
-#' TO DO: Re-write this documentation. Ivana
+#' TO DO: Re-write this documentation. 
 #'  
 #' @export
 #' 

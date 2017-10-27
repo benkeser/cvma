@@ -94,6 +94,9 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 #' The first is a vector of super learner predictions for the particular outcome, while the second
 #' is a matrix with columns corresponding the the various learners predictions of the particular outcome. 
 #' @examples
+#' 
+#' 
+#' 
 #' # TO DO: Add examples here
 
 predict.cvma <- function(object, newdata, ...){

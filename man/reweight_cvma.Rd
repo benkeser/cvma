@@ -56,7 +56,7 @@ obtained using V-1 cross-validation. If \code{return_all_y} is TRUE, it will ret
 outcome cross-validated measure (nonparametric R-squared or AUC), confidence interval and associated
 p-value. 
 
-TO DO: Re-write this documentation. Ivana
+TO DO: Re-write this documentation.
 }
 \description{
 This function allows you to use the learner fits from a previous call to \code{cvma}
