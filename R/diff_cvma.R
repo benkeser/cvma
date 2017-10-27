@@ -66,8 +66,9 @@ compare_cvma <- function(object1, object2,
 		rep(se,3)
 	ci <- do.call(compare_control$f_inv, args = list(h_cv_measures = transform_ci))
 	p_value <- 2*pnorm(-abs((f_this_c - compare_control$null)/se))
-	return(list(contrast = ci[1], ci_low = ci[2],
-	            ci_high = ci[3], p_value = p_value))
+	
+	return(cbind.data.frame(contrast = ci[1], ci_low = ci[2], ci_high = ci[3], p_value = p_value))
+	#return(list(contrast = ci[1], ci_low = ci[2], ci_high = ci[3], p_value = p_value))
 }
 
 #' compare_control for taking a difference in cross-validated maximal 
