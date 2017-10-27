@@ -18,12 +18,14 @@ compare_cvma(object1, object2, contrast = "diff", compare_control = list(f =
 \item{contrast}{A character indicating what contrast to take. Can be \code{"diff"},
 \code{"ratio"}, or \code{"logratio"}.}
 
-\item{compare_control}{TO DO: Add more documentation here}
+\item{compare_control}{Contains information regarding format of the contrast we are interested in, its inverse function, 
+type of contrast, IC components of the corresponding covariance calculation, and null hypothesis. 
+Defaults to functions necessary for \code{"diff"}.}
 
 \item{alpha}{Confidence intervals of 1 - alpha.}
 }
 \value{
-Estimates, CI, and p-value
+Estimates, CI, and p-value.
 }
 \description{
 Compare measures of association between two fits
