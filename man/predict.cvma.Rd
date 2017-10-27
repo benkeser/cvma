@@ -24,5 +24,8 @@ is a matrix with columns corresponding the the various learners predictions of t
 Get predictions on cvma object
 }
 \examples{
+
+
+
 # TO DO: Add examples here
 }
