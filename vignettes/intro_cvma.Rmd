@@ -34,9 +34,72 @@ suppressMessages(library(cvma))
 
 ---
 
-## 
+##General methodology
 
-[@vdl2007super]
+The `cvma` package provides flexible interface for computing cross-validation-based measures of maximal association. The method implemented uses covariate information to estimate combination of outcomes that optimizes a measure of predictive performance for given prediction algorithms. In essence, it estimates the combination of outcomes that is "easiest to predict" based on the available covariates. 
+
+In an outer layer of V-fold cross validation, training samples are used to train a prediction algorithm for each outcome. Multiple algorithms may be used and their predictions combined using the Super Learner methodology [@vdl2007super]. Note that Super Learner weights will be estimated based on V-2 fold cross-validation. 
+
+An inner layer of V-1 cross validation is used to determine a user-specified combination of outcomes that maximizes a user-specified prediction criteria. The outer layer validation sample is used to compute a user-specified cross-validated measure of performance of the prediction algorithm for predicting the combined outcome that was computed in the training sample. Several common choices for outcome combinations (convex combination of outcomes and single outcome that is most associated) and prediction criteria (nonparametric R^2, negative log-likelihood, and area under ROC curve) are implemented. Note that users may specify their own criteria as well. All implemented control options for `cvma` can be seen using the `list_control_options` function. 
+
+```{r control options}
+list_control_options()
+```
+
+The function returns the cross-validated summary measure for the maximally combined outcome and, if desired, the cross-validated summary measure for each outcome. 
+
+##Nonparametric $R^2$ 
+
+In order to illustrate cross-validated nonparametric R-squared for evaluating maximum association, we first simulate a simple dataset with continous outcomes:
+
+```{r sim nonpar R^2}
+set.seed(1234)
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rnorm(100, X$x1 + X$x2, 1)
+Y2 <- rnorm(100, X$x1 + X$x2, 3)
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+```
+
+Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mean and neural networks):
+
+```{r nonpar R^2}
+fit <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean","SL.nnet"))
+fit
+```
+
+We can explore the results of `cvma` a bit more. In particular, `fit$sl_fits` will return the super learner fit for each outcome on all the data,  
+
+##Negative log-likelihood
+
+```{r sim nll}
+set.seed(1234)
+
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1 + 0.2*X$x2))
+Y2 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1))
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+```
+
+##area under ROC curve
+
+```{r AUC}
+
+fit <- cvma(Y = Y, X = X, V = 5, 
+                learners = c("SL.glm","SL.mean"),
+                sl_control = list(ensemble_fn = "ensemble_linear",
+                                   optim_risk_fn = "optim_risk_sl_nloglik",
+                                   weight_fn = "weight_sl_convex",
+                                   cv_risk_fn = "cv_risk_sl_auc",
+                                   family = binomial(),
+                                   alpha = 0.05),
+                y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                  weight_fn = "weight_y_01",
+                                  optim_risk_fn = "optim_risk_y_auc",
+                                  cv_risk_fn = "cv_risk_y_auc",
+                                  alpha = 0.05))
+fit
+```
+
 
 ## Variable Importance 
 

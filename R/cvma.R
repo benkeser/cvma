@@ -38,12 +38,14 @@
 #' weighting schemes are desired). 
 #' @param scale Standardize each outcome to be mean zero with standard deviation 1.
 #' 
-#' @return If \code{return_outer_sl} is TRUE, it will return for each outcome Super Learner fit weights 
-#' and associated risk for each learner. In addition, it will return the fit for all learners based on 
-#' all folds. If \code{return_outer_weight} is TRUE, it will return the weights for each outcome
-#' obtained using V-1 cross-validation. If \code{return_all_y} is TRUE, it will return for each 
-#' outcome cross-validated measure (nonparametric R-squared or AUC), confidence interval and associated
-#' p-value. 
+#' @return The \code{outer_sl} will return Super Learner fit for each outcome 
+#' and associated learner risks on all the data. In addition, it will return the fit for all learners based on 
+#' all folds. The \code{outer_weight} will return the outcome weights 
+#' obtained using V-fold cross-validation (outer-most fold of CV). The \code{all_y} will return 
+#' cross-validated performance metric for all the outcomes, including the confidence interval, p-value and
+#' influence curve. Finally, \code{all_learner_assoc} will return for each outcome and learner 
+#' cross-validated metric, confidence interval, associated p-value and influence curve. Additinally, \code{all_learner_fits}
+#' returns all learner fits. 
 #'  
 #' @export
 #' 
@@ -124,6 +126,7 @@ cvma <- function(Y, X, V = 5, learners,
 
     # all super learner weight-getting tasks
     all_sl_tasks <- make_sl_task_list(Ynames = colnames(Ymat), V = V)
+    
     # TO DO: I have a hunch that if future_lapply requires transferring
     #        all_fits between nodes that the communication overhead will make
     #        parallelization of this step slower than doing it sequentially 
@@ -138,6 +141,7 @@ cvma <- function(Y, X, V = 5, learners,
     }else{
       all_y_weight_tasks <- list(list(training_folds = 1:V))
     }
+    
     all_weight <- lapply(all_y_weight_tasks, FUN = get_y_weight, 
                                  Y = Ymat, V = V, Ynames = colnames(Ymat), 
                                  all_fits = all_fits, all_sl = all_sl, 

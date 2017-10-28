@@ -68,16 +68,22 @@ test_that("Nonparametric R^2 with nloglik SL risk and 01 sl weights works", {
   expect_equal(fit$cv_assoc$cv_measure, -0.01554361, tolerance = 0.01)
 })
 
-test_that("Nonparametric R^2 with mean squared-error SL risk and 01 sl weights works", {
+
+test_that("Nonparametric R^2 with 01 y weight and AUC risk works ", {
   
   fit <- cvma(Y = Y_2, X = X_2, V = 5, 
               learners = c("SL.glm","SL.mean"), 
               sl_control = list(ensemble_fn = "ensemble_linear",
                                 optim_risk_fn = "optim_risk_sl_se",
-                                weight_fn = "weight_sl_01",
+                                weight_fn = "weight_sl_convex",
                                 cv_risk_fn = "cv_risk_sl_r2",
-                                family = binomial(),
-                                alpha = 0.05))
+                                family = gaussian(),
+                                alpha = 0.05),
+              y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                      weight_fn = "weight_y_01",
+                                      optim_risk_fn = "optim_risk_y_auc",
+                                      cv_risk_fn = "cv_risk_y_r2",
+                                      alpha = 0.05))
   
-  expect_equal(fit$cv_assoc$cv_measure, 0.03182854, tolerance = 0.01)
+  expect_equal(fit$cv_assoc$cv_measure, 0.0248, tolerance = 0.01)
 })
