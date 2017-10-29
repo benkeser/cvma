@@ -4,11 +4,13 @@
 #' @param object2 An object of class \code{cvma}
 #' @param contrast A character indicating what contrast to take. Can be \code{"diff"},
 #' \code{"ratio"}, or \code{"logratio"}.
-#' @param compare_control TO DO: Add more documentation here
+#' @param compare_control Contains information regarding format of the contrast we are interested in, its inverse function, 
+#' type of contrast, IC components of the corresponding covariance calculation, and null hypothesis. 
+#' Defaults to functions necessary for \code{"diff"}.
 #' @param alpha Confidence intervals of 1 - alpha. 
 #' @export
 #' @importFrom stats cov
-#' @return Estimates, CI, and p-value
+#' @return Estimates, CI, and p-value.
 #' @examples
 #' set.seed(1234)
 #' library(SuperLearner)
@@ -55,6 +57,7 @@ compare_cvma <- function(object1, object2,
 	grad <- matrix(do.call(compare_control$fh_grad,
 	                       args=list(cv_measure1 = object1$cv_assoc$cv_measure,
 	                                 cv_measure2 = object2$cv_assoc$cv_measure)),nrow = 2)
+	
 	v <- stats::cov(cbind(object1$cv_assoc$ic, object2$cv_assoc$ic))
 	n <- length(object1$cv_assoc$ic)
 
@@ -63,8 +66,9 @@ compare_cvma <- function(object1, object2,
 		rep(se,3)
 	ci <- do.call(compare_control$f_inv, args = list(h_cv_measures = transform_ci))
 	p_value <- 2*pnorm(-abs((f_this_c - compare_control$null)/se))
-	return(list(contrast = ci[1], ci_low = ci[2],
-	            ci_high = ci[3], p_value = p_value))
+	
+	return(cbind.data.frame(contrast = ci[1], ci_low = ci[2], ci_high = ci[3], p_value = p_value))
+	#return(list(contrast = ci[1], ci_low = ci[2], ci_high = ci[3], p_value = p_value))
 }
 
 #' compare_control for taking a difference in cross-validated maximal 

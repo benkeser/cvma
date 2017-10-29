@@ -25,17 +25,34 @@ Y1 <- rnorm(100, X$x1 + X$x2, 1)
 Y2 <- rnorm(100, X$x1 + X$x2, 3)
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
 
-test_that("Test Variable Importance function", {
+# fit data with full X
+fit1 <- cvma(Y = Y, X = X, V = 10, 
+             learners = c("SL.glm","SL.mean"))
+# fit data with only x1
+fit2 <- cvma(Y = Y, X = X[, -2, drop = FALSE], V = 10, 
+             learners = c("SL.glm","SL.mean"))
 
-  # fit data with full X
-  fit1 <- cvma(Y = Y, X = X, V = 10, 
-               learners = c("SL.glm","SL.mean"))
-  # fit data with only x1
-  fit2 <- cvma(Y = Y, X = X[, -2, drop = FALSE], V = 10, 
-               learners = c("SL.glm","SL.mean"))
-  
-  # difference in cross-validated R^2 for the two fits
-  fit<-compare_cvma(fit1, fit2)
+test_that("Test Variable Importance with difference in cross-validated maximal association measures ", {
+
+  fit<-compare_cvma(fit1, fit2, contrast = "diff")
   
   expect_equal(fit$contrast, 0.4874491, tolerance = 0.01)
+})
+
+test_that("Test Variable Importance with ratio of R^2", {
+
+  fit<-compare_cvma(fit1, fit2, contrast = "ratio")
+  
+  expect_equal(fit$contrast, 2.757304, tolerance = 0.01)
+  expect_equal(fit$ci_low, 1.31494, tolerance = 0.01)
+  expect_equal(fit$ci_high, 4.199667, tolerance = 0.01)
+})
+
+test_that("Test Variable Importance with ratio of R^2, CI symmetric on log-scale", {
+
+  fit<-compare_cvma(fit1, fit2, contrast = "logratio")
+  
+  expect_equal(fit$contrast, 2.757304, tolerance = 0.01)
+  expect_equal(fit$ci_low, 1.510909, tolerance = 0.01)
+  expect_equal(fit$ci_high, 5.031888, tolerance = 0.01)
 })

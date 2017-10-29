@@ -2,7 +2,6 @@
 output: 
     github_document
 ---
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
@@ -43,13 +42,13 @@ In the future, the package will be available from [CRAN](https://cran.r-project.
 install.packages("cvma")
 ```
 
-##Issues
+## Issues
 
 If you encounter any bugs or have any specific feature requests, please [file an issue](https://github.com/benkeser/cvma/issues).
 
 ## Example
 
-This minimal example shows how to use `cvma` with very simple, simulated data set. To start with, we use the nonparametric R^2 to evaluate the strength of association between a set of variables and a multivariate outcome:
+This minimal example shows how to use `cvma` with very simple, simulated data set. For more examples and detailed explanations, we refer the user to the vignette. To start with, we use the nonparametric R^2 to evaluate the strength of association between a set of variables and a multivariate outcome:
 
 ```{r, echo=FALSE}
 options(warn=-1)
@@ -68,14 +67,12 @@ Y <- data.frame(Y1 = Y1, Y2 = Y2)
 #cvma with nonparametric R^2:
 fit <- cvma(Y = Y, X = X, V = 10, 
                 learners = c("SL.glm","SL.mean"))
-
+fit
 ```
 
 The following example evaluates the strength of association using AUC:
 
 ```{r AUC}
-suppressMessages(library(cvma))
-set.seed(1234)
 
 #Simulate data:
 X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
@@ -97,7 +94,7 @@ fit <- cvma(Y = Y, X = X, V = 5,
                                   optim_risk_fn = "optim_risk_y_auc",
                                   cv_risk_fn = "cv_risk_y_auc",
                                   alpha = 0.05))
-
+fit
 ```
 
 ## Variable importance
@@ -105,7 +102,6 @@ fit <- cvma(Y = Y, X = X, V = 5,
 The cross-validated performance of two fits can be compared using the `compare_cvma` function. This can be used to define a variable importance measure for a set of variables. 
 
 ```{r}
-set.seed(1234)
 
 #Simulate data:
 X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))

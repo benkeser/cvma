@@ -58,4 +58,16 @@ test_that("Nonparametric R^2 with continous outcome, mean squared-error SL risk 
   expect_equal(fit$cv_assoc$cv_measure, 0.7686046, tolerance = 0.01)
 })
 
-
+test_that("Nonparametric R^2 with more learners works", {
+  
+  fit <- cvma(Y = Y, X = X, V = 5, 
+              learners = c("SL.glm","SL.mean", "SL.glmnet", "SL.nnet"), 
+              sl_control = list(ensemble_fn = "ensemble_linear",
+                                optim_risk_fn = "optim_risk_sl_se",
+                                weight_fn = "weight_sl_01",
+                                cv_risk_fn = "cv_risk_sl_r2",
+                                family = gaussian(),
+                                alpha = 0.05))
+  
+  expect_equal(fit$cv_assoc$cv_measure, 0.7600102, tolerance = 0.01)
+})

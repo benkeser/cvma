@@ -1,0 +1,195 @@
+---
+title: "A Machine learning-based approach for testing associations with multivariate outcomes"
+author: "David Benkeser and Ivana Malenica"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: intro_cvma_refs.bib
+vignette: >
+  %\VignetteIndexEntry{A Machine learning-based approach for testing associations with multivariate outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+The `cvma` package provides a method for summarizing the strength of association between a set of variables and a multivariate outcome. In particular, `cvma` uses an ensemble machine learning-based approach to detect and quantify the measure of association of nonlinear relationships and covariate interactions. In addition, it allows for testing the strong null hypothesis of no association between a set of variables and a multivariate outcome. Lastly, `cvma` performs variable importance analysis, and therefore summarizes each groups' association with the outcome.
+
+---
+
+## Installing and loading the package 
+
+In the following sections, we examine the use of `cvma` in a variety of simple examples. The package can be installed as follows:
+
+```{r install_pkg}
+if (!("cvma" %in% installed.packages())) {
+  devtools::install_github("benkeser/cvma")
+}
+```
+
+Once the package is installed, we can load it using the following command:
+
+```{r load_pkg}
+suppressMessages(library(cvma))
+```
+
+---
+
+## General methodology
+
+The `cvma` package provides flexible interface for computing cross-validation-based measures of maximal association. The method implemented uses covariate information to estimate combination of outcomes that optimizes a measure of predictive performance for given prediction algorithms. In essence, it estimates the combination of outcomes that is "easiest to predict" based on the available covariates. 
+
+In an outer layer of V-fold cross validation, training samples are used to train a prediction algorithm for each outcome. Multiple algorithms may be used and their predictions combined using the Super Learner methodology [@vdl2007super]. Note that Super Learner weights will be estimated based on V-2 fold cross-validation. 
+
+An inner layer of V-1 cross validation is used to determine a user-specified combination of outcomes that maximizes a user-specified prediction criteria. The outer layer validation sample is used to compute a user-specified cross-validated measure of performance of the prediction algorithm for predicting the combined outcome that was computed in the training sample. Several common choices for outcome combinations (convex combination of outcomes and single outcome that is most associated) and prediction criteria (nonparametric R^2, negative log-likelihood, and area under ROC curve) are implemented. Note that users may specify their own criteria as well. All implemented control options for `cvma` can be seen using the `list_control_options` function. 
+
+```{r control options}
+list_control_options()
+```
+
+The function returns the cross-validated summary measure for the maximally combined outcome and, if desired, the cross-validated summary measure for each outcome. 
+
+## Nonparametric $R^2$ 
+
+In order to illustrate cross-validated nonparametric R-squared for evaluating maximum association, we first simulate a simple dataset with continuous outcomes:
+
+```{r sim nonpar R^2}
+set.seed(1234)
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rnorm(100, X$x1 + X$x2, 1)
+Y2 <- rnorm(100, X$x1 + X$x2, 3)
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+```
+
+Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mean and neural networks). In order to specify more algorithms, see `SuperLearner::listWrappers()` for implemented learners supported by the package `SuperLearner`.
+
+```{r nonpar R^2}
+fit <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean","SL.nnet"))
+fit
+```
+
+We can explore the results of `cvma` a bit more. 
+
+- `fit$cv_assoc` returns risk for the entire procedure, including the cross-validation measure, confidence interval, p-value and influence curve. 
+
+- `fit$cv_assoc_all_y` returns cross-validated performance metrics for all the outcomes, with combined learners.  
+
+- `fit$cv_assoc_all_learners` returns for each outcome and learner cross-validated metric, confidence interval, associated p-value and influence curve.
+
+- `fit$sl_fits` will return the super learner fit for each outcome on all the data, including risk for each learner and their separate fits. 
+
+- `fit$outer_weight` returns outcome weights for outer-most fold of cross-validation and the mean of the combined outcomes.
+
+- `fit$outer_weight` returns outcome weights for inner-most fold of cross-validation, folds used for training and the mean of the combined outcomes.
+
+## Negative log-likelihood
+
+Instead of nonparametric $R^2$, we can use negative log-likelihood as prediction criteria instead. Similarly as before, we first simulate a simple dataset with binary outcomes:
+
+```{r sim nll}
+set.seed(1234)
+
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5))
+Y1 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1 + 0.2*X$x2))
+Y2 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1))
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+```
+
+We run `cvma` with 10 folds and 3 learners as before, but this time specifying the `cv_risk_fn` for both `sl_control` and `y_weight_control` to negative log-likelihood cross-validated measure. We also define loss by the negative log-likelihood, and change the outcome type in to binomial() for prediction. 
+
+```{r nll}
+fit <- cvma(Y = Y, X = X, V = 10, 
+              learners = c("SL.glm","SL.mean","SL.nnet"),
+              sl_control = list(ensemble_fn = "ensemble_linear",
+                                optim_risk_fn = "optim_risk_sl_nloglik",
+                                weight_fn = "weight_sl_convex",
+                                cv_risk_fn = "cv_risk_sl_nloglik",
+                                family = binomial(),
+                                alpha = 0.05),
+              y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                      weight_fn = "weight_y_01",
+                                      optim_risk_fn = "optim_risk_y_nloglik",
+                                      cv_risk_fn = "cv_risk_y_nloglik",
+                                      alpha = 0.05))
+
+fit
+```
+
+## Area under ROC curve
+
+Finally, we can use the area area under ROC curve as prediction criteria. In order to accomplish this, we use auc appropriate `cv_risk_fn`, `optim_risk_fn` and `weight_fn` as illustrated below:
+
+```{r AUC}
+fit <- cvma(Y = Y, X = X, V = 5, 
+                learners = c("SL.glm","SL.mean"),
+                sl_control = list(ensemble_fn = "ensemble_linear",
+                                   optim_risk_fn = "optim_risk_sl_nloglik",
+                                   weight_fn = "weight_sl_convex",
+                                   cv_risk_fn = "cv_risk_sl_auc",
+                                   family = binomial(),
+                                   alpha = 0.05),
+                y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                  weight_fn = "weight_y_01",
+                                  optim_risk_fn = "optim_risk_y_auc",
+                                  cv_risk_fn = "cv_risk_y_auc",
+                                  alpha = 0.05))
+fit
+```
+
+## Variable Importance 
+
+Instead of assessing the overall summary of association between $X$ and $Y$, one might be interested in quantifying the relative importance of each component of $X$. The function `compare_cvma` function computes the differences in the estimated association between $X$ and $Y$ when considering different sets of variables. In essence, the proposed method is similar to well known random forests, in that it measures the change in predictive performance with and without each predictor being considered [@breiman2001]. We emphasize that the method implemented in `compare_cvma` yields straightforward, asymptotically justified inference, as opposed to many existing variable importance methods.  
+
+Once again, we simulate a simple data structure in order to illustrate how to use `compare_cvma` function to assess variable importance:
+
+```{r sim_data var_importance}
+set.seed(1234)
+
+X <- data.frame(x1=runif(n=100,0,5), x2=runif(n=100,0,5), x3=runif(n=100,0,5))
+Y1 <- rnorm(100, X$x1 + X$x2, 1)
+Y2 <- rnorm(100, X$x1 + X$x2 + X$x3, 3)
+Y <- data.frame(Y1 = Y1, Y2 = Y2)
+
+```
+
+For computational simplicity of this example, we only look at low-dimensional $X$ and $Y$, and fit with simple learners and $V=10$. To assess the importance of variable $x3$ with $x3 \in X$, we repeat the procedure described in the previous section but restrict to variables not in this subset. Therefore, we obtain an estimate of the cross-validated performance measure for the composite prediction algorithm based on a subset of variables, as well as when all variables are used. First we fit data with all variables in $X$:
+
+```{r sep_fit1 var_importance}
+fit1 <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean"))
+```
+
+Then, we repeat the procedure restricting to variables not in the subset $\{x3\}$ of $X$:
+
+```{r sep_fit2 var_importance}
+fit2 <- cvma(Y = Y, X = X[,-3], V = 10, learners = c("SL.glm","SL.mean"))
+```
+
+We are now ready to assess the variable importance of $x3$ for association between $X$ and $Y$. The package `cvma` provides 3 different options for the type of comparison to be made. With $R^2$ as the example metric, we can look at the differences in $R^2$ between the two fits using the following command:
+
+```{r diff var_importance}
+fit<-compare_cvma(fit1, fit2, contrast = "diff")
+fit
+```
+
+The output of `compare_cvma` includes the contrast measure, associated confidence interval for $1-\alpha$, and p-value. In addition, we can look at the ratio of $R^2$ instead, with symmetric CI. 
+```{r ratio var_importance}
+fit<-compare_cvma(fit1, fit2, contrast = "ratio")
+fit
+```
+
+Finally, we can also assess variable importance using the ratio of $R^2$, with symmetric CI on the log-scale:
+
+```{r logratio var_importance}
+fit<-compare_cvma(fit1, fit2, contrast = "logratio")
+fit
+```
+
+## Session Information
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
+---
+
+## References
+

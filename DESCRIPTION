@@ -20,10 +20,12 @@ Imports:
 Suggests: 
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    utils
 License: MIT + file LICENSE
 URL: https://github.com/benkeser/cvma
 BugReports: https://github.com/benkeser/cvma/issues
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr
 RoxygenNote: 6.0.1.9000
