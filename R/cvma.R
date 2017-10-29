@@ -38,14 +38,15 @@
 #' weighting schemes are desired). 
 #' @param scale Standardize each outcome to be mean zero with standard deviation 1.
 #' 
-#' @return The \code{outer_sl} will return Super Learner fit for each outcome 
-#' and associated learner risks on all the data. In addition, it will return the fit for all learners based on 
-#' all folds. The \code{outer_weight} will return the outcome weights 
-#' obtained using V-fold cross-validation (outer-most fold of CV). The \code{all_y} will return 
+#' @return \code{cv_assoc} returns risk for the entire procedure. The \code{cv_assoc_all_y} will return 
 #' cross-validated performance metric for all the outcomes, including the confidence interval, p-value and
-#' influence curve. Finally, \code{all_learner_assoc} will return for each outcome and learner 
-#' cross-validated metric, confidence interval, associated p-value and influence curve. Additinally, \code{all_learner_fits}
-#' returns all learner fits. 
+#' influence curve. \code{all_learner_assoc} will return for each outcome and learner 
+#' cross-validated metric, confidence interval, associated p-value and influence curve.
+#' The \code{sl_fit} will return Super Learner fit for each outcome and associated learner risks on 
+#' all the data. In addition, it will return the fit for all learners based on all folds. 
+#' The \code{outer_weight} will return the outcome weights obtained using outer-most fold of CV. 
+#' \code{inner_weight} returns outcome weights obtained using inner-most fold of CV. Additinally, 
+#' \code{all_learner_fits} returns all learner fits. 
 #'  
 #' @export
 #' 
@@ -207,11 +208,11 @@ cvma <- function(Y, X, V = 5, learners,
 
     # format output
     out <- list(cv_assoc = risk, 
+                cv_assoc_all_y = risk_all_y,
+                cv_assoc_all_learners = risk_all_learners,
                 sl_fits = all_outer_sl, 
                 outer_weight = outer_weight,
                 inner_weight = all_weight, 
-                cv_assoc_all_y = risk_all_y,
-                cv_assoc_all_learners = risk_all_learners,
                 folds = folds, 
                 y_names = colnames(Ymat),
                 learners = learners,

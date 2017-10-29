@@ -16,7 +16,7 @@ The `cvma` package provides a method for summarizing the strength of association
 
 ---
 
-##Installing and loading the package 
+## Installing and loading the package 
 
 In the following sections, we examine the use of `cvma` in a variety of simple examples. The package can be installed as follows:
 
@@ -34,7 +34,7 @@ suppressMessages(library(cvma))
 
 ---
 
-##General methodology
+## General methodology
 
 The `cvma` package provides flexible interface for computing cross-validation-based measures of maximal association. The method implemented uses covariate information to estimate combination of outcomes that optimizes a measure of predictive performance for given prediction algorithms. In essence, it estimates the combination of outcomes that is "easiest to predict" based on the available covariates. 
 
@@ -48,9 +48,9 @@ list_control_options()
 
 The function returns the cross-validated summary measure for the maximally combined outcome and, if desired, the cross-validated summary measure for each outcome. 
 
-##Nonparametric $R^2$ 
+## Nonparametric $R^2$ 
 
-In order to illustrate cross-validated nonparametric R-squared for evaluating maximum association, we first simulate a simple dataset with continous outcomes:
+In order to illustrate cross-validated nonparametric R-squared for evaluating maximum association, we first simulate a simple dataset with continuous outcomes:
 
 ```{r sim nonpar R^2}
 set.seed(1234)
@@ -60,16 +60,30 @@ Y2 <- rnorm(100, X$x1 + X$x2, 3)
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
 ```
 
-Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mean and neural networks):
+Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mean and neural networks). In order to specify more algorithms, see `SuperLearner::listWrappers()` for implemented learners supported by the package `SuperLearner`.
 
 ```{r nonpar R^2}
 fit <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean","SL.nnet"))
 fit
 ```
 
-We can explore the results of `cvma` a bit more. In particular, `fit$sl_fits` will return the super learner fit for each outcome on all the data,  
+We can explore the results of `cvma` a bit more. 
 
-##Negative log-likelihood
+- `fit$cv_assoc` returns risk for the entire procedure, including the cross-validation measure, confidence interval, p-value and influence curve. 
+
+- `fit$cv_assoc_all_y` returns cross-validated performance metrics for all the outcomes, with combined learners.  
+
+- `fit$cv_assoc_all_learners` returns for each outcome and learner cross-validated metric, confidence interval, associated p-value and influence curve.
+
+- `fit$sl_fits` will return the super learner fit for each outcome on all the data, including risk for each learner and their separate fits. 
+
+- `fit$outer_weight` returns outcome weights for outer-most fold of cross-validation and the mean of the combined outcomes.
+
+- `fit$outer_weight` returns outcome weights for inner-most fold of cross-validation, folds used for training and the mean of the combined outcomes.
+
+## Negative log-likelihood
+
+Instead of nonparametric $R^2$, we can use negative log-likelihood as prediction criteria instead. Similarly as before, we first simulate a simple dataset with binary outcomes:
 
 ```{r sim nll}
 set.seed(1234)
@@ -80,10 +94,31 @@ Y2 <- rbinom(100, 1, plogis(-2 + 0.1*X$x1))
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
 ```
 
-##area under ROC curve
+We run `cvma` with 10 folds and 3 learners as before, but this time specifying the `cv_risk_fn` for both `sl_control` and `y_weight_control` to negative log-likelihood cross-validated measure. We also define loss by the negative log-likelihood, and change the outcome type in to binomial() for prediction. 
+
+```{r nll}
+fit <- cvma(Y = Y, X = X, V = 10, 
+              learners = c("SL.glm","SL.mean","SL.nnet"),
+              sl_control = list(ensemble_fn = "ensemble_linear",
+                                optim_risk_fn = "optim_risk_sl_nloglik",
+                                weight_fn = "weight_sl_convex",
+                                cv_risk_fn = "cv_risk_sl_nloglik",
+                                family = binomial(),
+                                alpha = 0.05),
+              y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                      weight_fn = "weight_y_01",
+                                      optim_risk_fn = "optim_risk_y_nloglik",
+                                      cv_risk_fn = "cv_risk_y_nloglik",
+                                      alpha = 0.05))
+
+fit
+```
+
+## Area under ROC curve
+
+Finally, we can use the area area under ROC curve as prediction criteria. In order to accomplish this, we use auc appropriate `cv_risk_fn`, `optim_risk_fn` and `weight_fn` as illustrated below:
 
 ```{r AUC}
-
 fit <- cvma(Y = Y, X = X, V = 5, 
                 learners = c("SL.glm","SL.mean"),
                 sl_control = list(ensemble_fn = "ensemble_linear",
@@ -99,7 +134,6 @@ fit <- cvma(Y = Y, X = X, V = 5,
                                   alpha = 0.05))
 fit
 ```
-
 
 ## Variable Importance 
 

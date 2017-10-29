@@ -2,7 +2,6 @@
 output: 
     github_document
 ---
-<!-- rmarkdown v1 -->
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE}
@@ -43,7 +42,7 @@ In the future, the package will be available from [CRAN](https://cran.r-project.
 install.packages("cvma")
 ```
 
-##Issues
+## Issues
 
 If you encounter any bugs or have any specific feature requests, please [file an issue](https://github.com/benkeser/cvma/issues).
 

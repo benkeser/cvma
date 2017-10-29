@@ -12,7 +12,7 @@
 
 <meta name="author" content="David Benkeser and Ivana Malenica" />
 
-<meta name="date" content="2017-10-26" />
+<meta name="date" content="2017-10-28" />
 
 <title>A Machine learning-based approach for testing associations with multivariate outcomes</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">A Machine learning-based approach for testing associations with multivariate outcomes</h1>
 <h4 class="author"><em>David Benkeser and Ivana Malenica</em></h4>
-<h4 class="date"><em>2017-10-26</em></h4>
+<h4 class="date"><em>2017-10-28</em></h4>
 
 
 
@@ -89,9 +89,99 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(cvma))</code></pre></div>
 <hr />
 </div>
-<div id="section" class="section level2">
-<h2></h2>
-<p><span class="citation">(van der Laan, Polley, and Hubbard 2007)</span></p>
+<div id="general-methodology" class="section level2">
+<h2>General methodology</h2>
+<p>The <code>cvma</code> package provides flexible interface for computing cross-validation-based measures of maximal association. The method implemented uses covariate information to estimate combination of outcomes that optimizes a measure of predictive performance for given prediction algorithms. In essence, it estimates the combination of outcomes that is “easiest to predict” based on the available covariates.</p>
+<p>In an outer layer of V-fold cross validation, training samples are used to train a prediction algorithm for each outcome. Multiple algorithms may be used and their predictions combined using the Super Learner methodology <span class="citation">(van der Laan, Polley, and Hubbard 2007)</span>. Note that Super Learner weights will be estimated based on V-2 fold cross-validation.</p>
+<p>An inner layer of V-1 cross validation is used to determine a user-specified combination of outcomes that maximizes a user-specified prediction criteria. The outer layer validation sample is used to compute a user-specified cross-validated measure of performance of the prediction algorithm for predicting the combined outcome that was computed in the training sample. Several common choices for outcome combinations (convex combination of outcomes and single outcome that is most associated) and prediction criteria (nonparametric R^2, negative log-likelihood, and area under ROC curve) are implemented. Note that users may specify their own criteria as well. All implemented control options for <code>cvma</code> can be seen using the <code>list_control_options</code> function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">list_control_options</span>()</code></pre></div>
+<pre><code>## All ensemble functions in cvma:</code></pre>
+<pre><code>## [1] &quot;ensemble_linear&quot;       &quot;ensemble_logit_linear&quot;</code></pre>
+<pre><code>## All weight functions used to select weighted super learner in cvma:</code></pre>
+<pre><code>## [1] &quot;weight_sl_01&quot;     &quot;weight_sl_convex&quot;</code></pre>
+<pre><code>## All weight functions used to select weighted outcomes in cvma:</code></pre>
+<pre><code>## [1] &quot;weight_y_01&quot;     &quot;weight_y_convex&quot;</code></pre>
+<pre><code>## All risk functions used to select weighted super learner in cvma:</code></pre>
+<pre><code>## [1] &quot;optim_risk_sl_auc&quot;     &quot;optim_risk_sl_nloglik&quot; &quot;optim_risk_sl_se&quot;</code></pre>
+<pre><code>## All risk functions used to select weighted outcomes in cvma:</code></pre>
+<pre><code>## [1] &quot;optim_risk_y_auc&quot;     &quot;optim_risk_y_nloglik&quot; &quot;optim_risk_y_r2&quot;</code></pre>
+<pre><code>## All cv-risk functions used to evaluate super learner predictions of single outcomes in cvma:</code></pre>
+<pre><code>## [1] &quot;cv_risk_sl_auc&quot;     &quot;cv_risk_sl_nloglik&quot; &quot;cv_risk_sl_r2&quot;</code></pre>
+<pre><code>## All cv-risk functions used to evaluate super learner predictions of combined outcomes in cvma:</code></pre>
+<pre><code>## [1] &quot;cv_risk_y_auc&quot;     &quot;cv_risk_y_nloglik&quot; &quot;cv_risk_y_r2&quot;</code></pre>
+<p>The function returns the cross-validated summary measure for the maximally combined outcome and, if desired, the cross-validated summary measure for each outcome.</p>
+</div>
+<div id="nonparametric-r2" class="section level2">
+<h2>Nonparametric <span class="math inline">\(R^2\)</span></h2>
+<p>In order to illustrate cross-validated nonparametric R-squared for evaluating maximum association, we first simulate a simple dataset with continuous outcomes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+X &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1=</span><span class="kw">runif</span>(<span class="dt">n=</span><span class="dv">100</span>,<span class="dv">0</span>,<span class="dv">5</span>), <span class="dt">x2=</span><span class="kw">runif</span>(<span class="dt">n=</span><span class="dv">100</span>,<span class="dv">0</span>,<span class="dv">5</span>))
+Y1 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100</span>, X<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span>X<span class="op">$</span>x2, <span class="dv">1</span>)
+Y2 &lt;-<span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">100</span>, X<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span>X<span class="op">$</span>x2, <span class="dv">3</span>)
+Y &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Y1 =</span> Y1, <span class="dt">Y2 =</span> Y2)</code></pre></div>
+<p>Next, we run <code>cvma</code> with 10 folds and 3 learners (generalized linear models, mean and neural networks). In order to specify more algorithms, see <code>SuperLearner::listWrappers()</code> for implemented learners supported by the package <code>SuperLearner</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">cvma</span>(<span class="dt">Y =</span> Y, <span class="dt">X =</span> X, <span class="dt">V =</span> <span class="dv">10</span>, <span class="dt">learners =</span> <span class="kw">c</span>(<span class="st">&quot;SL.glm&quot;</span>,<span class="st">&quot;SL.mean&quot;</span>,<span class="st">&quot;SL.nnet&quot;</span>))</code></pre></div>
+<pre><code>## Loading required package: nnet</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit</code></pre></div>
+<pre><code>##   cv_measure   ci_low   ci_high      p_value
+## 1  0.7674728 0.665341 0.8384359 2.040982e-15</code></pre>
+<p>We can explore the results of <code>cvma</code> a bit more.</p>
+<ul>
+<li><p><code>fit$cv_assoc</code> returns risk for the entire procedure, including the cross-validation measure, confidence interval, p-value and influence curve.</p></li>
+<li><p><code>fit$cv_assoc_all_y</code> returns cross-validated performance metrics for all the outcomes, with combined learners.</p></li>
+<li><p><code>fit$cv_assoc_all_learners</code> returns for each outcome and learner cross-validated metric, confidence interval, associated p-value and influence curve.</p></li>
+<li><p><code>fit$sl_fits</code> will return the super learner fit for each outcome on all the data, including risk for each learner and their separate fits.</p></li>
+<li><p><code>fit$outer_weight</code> returns outcome weights for outer-most fold of cross-validation and the mean of the combined outcomes.</p></li>
+<li><p><code>fit$outer_weight</code> returns outcome weights for inner-most fold of cross-validation, folds used for training and the mean of the combined outcomes.</p></li>
+</ul>
+</div>
+<div id="negative-log-likelihood" class="section level2">
+<h2>Negative log-likelihood</h2>
+<p>Instead of nonparametric <span class="math inline">\(R^2\)</span>, we can use negative log-likelihood as prediction criteria instead. Similarly as before, we first simulate a simple dataset with binary outcomes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">1234</span>)
+
+X &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1=</span><span class="kw">runif</span>(<span class="dt">n=</span><span class="dv">100</span>,<span class="dv">0</span>,<span class="dv">5</span>), <span class="dt">x2=</span><span class="kw">runif</span>(<span class="dt">n=</span><span class="dv">100</span>,<span class="dv">0</span>,<span class="dv">5</span>))
+Y1 &lt;-<span class="st"> </span><span class="kw">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="kw">plogis</span>(<span class="op">-</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.1</span><span class="op">*</span>X<span class="op">$</span>x1 <span class="op">+</span><span class="st"> </span><span class="fl">0.2</span><span class="op">*</span>X<span class="op">$</span>x2))
+Y2 &lt;-<span class="st"> </span><span class="kw">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="kw">plogis</span>(<span class="op">-</span><span class="dv">2</span> <span class="op">+</span><span class="st"> </span><span class="fl">0.1</span><span class="op">*</span>X<span class="op">$</span>x1))
+Y &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Y1 =</span> Y1, <span class="dt">Y2 =</span> Y2)</code></pre></div>
+<p>We run <code>cvma</code> with 10 folds and 3 learners as before, but this time specifying the <code>cv_risk_fn</code> for both <code>sl_control</code> and <code>y_weight_control</code> to negative log-likelihood cross-validated measure. We also define loss by the negative log-likelihood, and change the outcome type in to binomial() for prediction.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">cvma</span>(<span class="dt">Y =</span> Y, <span class="dt">X =</span> X, <span class="dt">V =</span> <span class="dv">10</span>, 
+              <span class="dt">learners =</span> <span class="kw">c</span>(<span class="st">&quot;SL.glm&quot;</span>,<span class="st">&quot;SL.mean&quot;</span>,<span class="st">&quot;SL.nnet&quot;</span>),
+              <span class="dt">sl_control =</span> <span class="kw">list</span>(<span class="dt">ensemble_fn =</span> <span class="st">&quot;ensemble_linear&quot;</span>,
+                                <span class="dt">optim_risk_fn =</span> <span class="st">&quot;optim_risk_sl_nloglik&quot;</span>,
+                                <span class="dt">weight_fn =</span> <span class="st">&quot;weight_sl_convex&quot;</span>,
+                                <span class="dt">cv_risk_fn =</span> <span class="st">&quot;cv_risk_sl_nloglik&quot;</span>,
+                                <span class="dt">family =</span> <span class="kw">binomial</span>(),
+                                <span class="dt">alpha =</span> <span class="fl">0.05</span>),
+              <span class="dt">y_weight_control =</span> <span class="kw">list</span>(<span class="dt">ensemble_fn =</span> <span class="st">&quot;ensemble_linear&quot;</span>,
+                                      <span class="dt">weight_fn =</span> <span class="st">&quot;weight_y_01&quot;</span>,
+                                      <span class="dt">optim_risk_fn =</span> <span class="st">&quot;optim_risk_y_nloglik&quot;</span>,
+                                      <span class="dt">cv_risk_fn =</span> <span class="st">&quot;cv_risk_y_nloglik&quot;</span>,
+                                      <span class="dt">alpha =</span> <span class="fl">0.05</span>))
+
+fit</code></pre></div>
+<pre><code>##   cv_measure    ci_low   ci_high   p_value
+## 1  0.6302028 0.4829439 0.7774617 0.2010806</code></pre>
+</div>
+<div id="area-under-roc-curve" class="section level2">
+<h2>Area under ROC curve</h2>
+<p>Finally, we can use the area area under ROC curve as prediction criteria. In order to accomplish this, we use auc appropriate <code>cv_risk_fn</code>, <code>optim_risk_fn</code> and <code>weight_fn</code> as illustrated below:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit &lt;-<span class="st"> </span><span class="kw">cvma</span>(<span class="dt">Y =</span> Y, <span class="dt">X =</span> X, <span class="dt">V =</span> <span class="dv">5</span>, 
+                <span class="dt">learners =</span> <span class="kw">c</span>(<span class="st">&quot;SL.glm&quot;</span>,<span class="st">&quot;SL.mean&quot;</span>),
+                <span class="dt">sl_control =</span> <span class="kw">list</span>(<span class="dt">ensemble_fn =</span> <span class="st">&quot;ensemble_linear&quot;</span>,
+                                   <span class="dt">optim_risk_fn =</span> <span class="st">&quot;optim_risk_sl_nloglik&quot;</span>,
+                                   <span class="dt">weight_fn =</span> <span class="st">&quot;weight_sl_convex&quot;</span>,
+                                   <span class="dt">cv_risk_fn =</span> <span class="st">&quot;cv_risk_sl_auc&quot;</span>,
+                                   <span class="dt">family =</span> <span class="kw">binomial</span>(),
+                                   <span class="dt">alpha =</span> <span class="fl">0.05</span>),
+                <span class="dt">y_weight_control =</span> <span class="kw">list</span>(<span class="dt">ensemble_fn =</span> <span class="st">&quot;ensemble_linear&quot;</span>,
+                                  <span class="dt">weight_fn =</span> <span class="st">&quot;weight_y_01&quot;</span>,
+                                  <span class="dt">optim_risk_fn =</span> <span class="st">&quot;optim_risk_y_auc&quot;</span>,
+                                  <span class="dt">cv_risk_fn =</span> <span class="st">&quot;cv_risk_y_auc&quot;</span>,
+                                  <span class="dt">alpha =</span> <span class="fl">0.05</span>))
+fit</code></pre></div>
+<pre><code>##   cv_measure   ci_low   ci_high    p_value
+## 1  0.6228493 0.481018 0.7646807 0.04478675</code></pre>
 </div>
 <div id="variable-importance" class="section level2">
 <h2>Variable Importance</h2>
@@ -110,48 +200,18 @@ Y &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="
 <p>We are now ready to assess the variable importance of <span class="math inline">\(x3\)</span> for association between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>. The package <code>cvma</code> provides 3 different options for the type of comparison to be made. With <span class="math inline">\(R^2\)</span> as the example metric, we can look at the differences in <span class="math inline">\(R^2\)</span> between the two fits using the following command:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit&lt;-<span class="kw">compare_cvma</span>(fit1, fit2, <span class="dt">contrast =</span> <span class="st">&quot;diff&quot;</span>)
 fit</code></pre></div>
-<pre><code>## $contrast
-## [1] 0.001624902
-## 
-## $ci_low
-## [1] -0.1203579
-## 
-## $ci_high
-## [1] 0.1236077
-## 
-## $p_value
-##          [,1]
-## [1,] 0.979171</code></pre>
+<pre><code>##      contrast     ci_low   ci_high  p_value
+## 1 0.001624902 -0.1203579 0.1236077 0.979171</code></pre>
 <p>The output of <code>compare_cvma</code> includes the contrast measure, associated confidence interval for <span class="math inline">\(1-\alpha\)</span>, and p-value. In addition, we can look at the ratio of <span class="math inline">\(R^2\)</span> instead, with symmetric CI.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit&lt;-<span class="kw">compare_cvma</span>(fit1, fit2, <span class="dt">contrast =</span> <span class="st">&quot;ratio&quot;</span>)
 fit</code></pre></div>
-<pre><code>## $contrast
-## [1] 1.002059
-## 
-## $ci_low
-## [1] 0.8472941
-## 
-## $ci_high
-## [1] 1.156825
-## 
-## $p_value
-##           [,1]
-## [1,] 0.9791933</code></pre>
+<pre><code>##   contrast    ci_low  ci_high   p_value
+## 1 1.002059 0.8472941 1.156825 0.9791933</code></pre>
 <p>Finally, we can also assess variable importance using the ratio of <span class="math inline">\(R^2\)</span>, with symmetric CI on the log-scale:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit&lt;-<span class="kw">compare_cvma</span>(fit1, fit2, <span class="dt">contrast =</span> <span class="st">&quot;logratio&quot;</span>)
 fit</code></pre></div>
-<pre><code>## $contrast
-## [1] 1.002059
-## 
-## $ci_low
-## [1] 0.8585222
-## 
-## $ci_high
-## [1] 1.169595
-## 
-## $p_value
-##           [,1]
-## [1,] 0.9791925</code></pre>
+<pre><code>##   contrast    ci_low  ci_high   p_value
+## 1 1.002059 0.8585222 1.169595 0.9791925</code></pre>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session Information</h2>
@@ -170,7 +230,8 @@ fit</code></pre></div>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] cvma_0.1.0          SuperLearner_2.0-22 nnls_1.4           
+## [1] nnet_7.3-12         cvma_0.1.0          SuperLearner_2.0-22
+## [4] nnls_1.4           
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.13        knitr_1.17          magrittr_1.5       
