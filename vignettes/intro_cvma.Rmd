@@ -81,6 +81,22 @@ We can explore the results of `cvma` a bit more.
 
 - `fit$outer_weight` returns outcome weights for inner-most fold of cross-validation, folds used for training and the mean of the combined outcomes.
 
+We can generate a nice output using the `summary` function. In particular, this function will summarize results of running `cvma` by providing a user-friendly output for final weights, Super Learner risks and weights, cross-validation associated measures for each outcome and for each learner.
+
+```{r summary}
+#Final weights:
+summary(fit, "weights")
+
+#Super Learner output:
+summary(fit, "superlearner")
+
+#Cross-validation measures for each outcome:
+summary(fit, "outcomes")
+
+#Cross-validation measures for each learner in the library:
+summary(fit, "learners")
+```
+
 ## Negative log-likelihood
 
 Instead of nonparametric $R^2$, we can use negative log-likelihood as prediction criteria instead. Similarly as before, we first simulate a simple dataset with binary outcomes:
