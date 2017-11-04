@@ -25,13 +25,14 @@ ensemble_linear <- function(pred, weight){
 #' @importFrom stats qlogis
 
 trim_qlogis <- function(p, trim = 1e-4){
-    return(stats::qlogis(trim_p(p, trim = trim)))
+    return(stats::qlogis(as.matrix(trim_p(p, trim = trim))))
 }
 
 #' Helper function to trim a prediction
 #' @keywords internal
 trim_p <- function(p, trim = 1e-4){
-    p[p < trim] <- trim; p[p > 1 - trim] <- 1 - trim
+    p[p < trim] <- trim 
+    p[p > 1 - trim] <- 1 - trim
     return(p)
 }
 
