@@ -63,7 +63,7 @@ ensemble_logit_linear <- function(pred, weight, l = 0, u = 1,
     nonzero_idx <- weight != 0 
     scale_pred <- (pred - l)/(u - l)
     logit_scale_pred <- trim_qlogis(scale_pred, trim = trim)
-    lin_pred <- tcrossprod(weight[nonzero_idx, ], logit_scale_pred[ , nonzero_idx, drop = FALSE])
+    lin_pred <- tcrossprod(weight[nonzero_idx], logit_scale_pred[ , nonzero_idx, drop = FALSE])
     out <- stats::plogis(lin_pred)*(u - l) + l
     return(as.numeric(out))
 }
