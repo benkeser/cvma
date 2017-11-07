@@ -29,6 +29,7 @@ test_that("Summary refit function works", {
               learners = c("SL.glm","SL.mean"), 
               return_control = list(outer_weight = TRUE,
                                     outer_sl = TRUE,
+                                    inner_sl = FALSE,
                                     all_y = TRUE,
                                     all_learner_assoc = TRUE,
                                     all_learner_fits = TRUE))

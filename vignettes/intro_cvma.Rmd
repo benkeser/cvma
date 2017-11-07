@@ -66,9 +66,11 @@ Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mea
 fit <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean","SL.nnet"),
             return_control = list(outer_weight = TRUE,
                                   outer_sl = TRUE,
+                                  inner_sl = FALSE,
                                   all_y = TRUE,
                                   all_learner_assoc = TRUE,
                                   all_learner_fits = TRUE))
+
 fit
 ```
 
