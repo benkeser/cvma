@@ -201,13 +201,13 @@ get_formatted_sl <- function(task, Y, V, all_fit_tasks, all_fits, folds,
     # get fits for each learner
     idx <- search_fits_for_training_folds(fits = all_fit_tasks, 
                                           y = task$Yname, 
-                                          training_folds = 1:V)
+                                          training_folds = task$training_folds)
     fit_out <- sapply(idx, function(i){
                 lapply(all_fits[i], "[", "fit")
             })
 
-    out <- list(Yname = task$Yname, sl_weight = sl_weight,
-                learner_names = learners,
+    out <- list(Yname = task$Yname, training_folds = task$training_folds, 
+                sl_weight = sl_weight, learner_names = learners,
                 learner_risks = risks, learner_fits = fit_out)
     return(out)
 }

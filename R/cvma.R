@@ -81,6 +81,7 @@ cvma <- function(Y, X, V = 5, learners,
                                   alpha = 0.05),
                       return_control = list(outer_weight = TRUE,
                                             outer_sl = TRUE,
+                                            inner_sl = FALSE, 
                                             all_y = TRUE,
                                             all_learner_assoc = TRUE,
                                             all_learner_fits = FALSE),
@@ -168,6 +169,19 @@ cvma <- function(Y, X, V = 5, learners,
         all_outer_sl <- NULL
     }
 
+    # format inner super learner
+    if(return_control$inner_sl){
+        inner_sl_tasks <- make_sl_task_list(Ynames = colnames(Ymat), V = V, 
+                                            fold_fits = V-1)
+        all_inner_sl <- lapply(inner_sl_tasks, FUN = get_formatted_sl, 
+                           Y = Ymat, V = V, all_fit_tasks = all_fit_tasks,
+                           all_fits = all_fits, folds = folds,
+                           sl_control = sl_control, learners = learners, 
+                           return_learner_fits = TRUE)
+    }else{
+        all_inner_sl <- NULL
+    }
+
     # compute outer weights
     if(return_control$outer_weight){
         outer_weight <- get_y_weight(task = list(training_folds = 1:V),
@@ -210,7 +224,8 @@ cvma <- function(Y, X, V = 5, learners,
     out <- list(cv_assoc = risk, 
                 cv_assoc_all_y = risk_all_y,
                 cv_assoc_all_learners = risk_all_learners,
-                sl_fits = all_outer_sl, 
+                sl_fits = all_outer_sl,
+                inner_sl_fits = all_inner_sl,
                 outer_weight = outer_weight,
                 inner_weight = all_weight, 
                 folds = folds, 

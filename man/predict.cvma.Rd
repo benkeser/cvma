@@ -4,12 +4,16 @@
 \alias{predict.cvma}
 \title{Get predictions on cvma object}
 \usage{
-\method{predict}{cvma}(object, newdata, ...)
+\method{predict}{cvma}(object, newdata, outer = TRUE, ...)
 }
 \arguments{
 \item{object}{Object of class \code{cvma}}
 
 \item{newdata}{A \code{data.frame} of predictors on which to obtain predictions}
+
+\item{outer}{Return a vector of predictions from outer super learner (i.e., the one
+fit on all V folds, default) or a matrix of predictions from inner super learners
+fit on V-1 folds.}
 
 \item{...}{Other options (not currently used)}
 }
@@ -18,7 +22,9 @@ A list of predictions with named entries \code{y_weight} and \code{object$y_name
 The former contains predictions of the weighted outcome, while the latter contains predictions of
 the respective univariate outcome. Each entry in the outputted list is itself a list with two entries. 
 The first is a vector of super learner predictions for the particular outcome, while the second
-is a matrix with columns corresponding the the various learners predictions of the particular outcome.
+is a matrix with columns corresponding the the various learners predictions of the particular outcome. 
+TO DO: Rethink formatting of output when outer = TRUE to be more like the format
+when outer = FALSE?
 }
 \description{
 Get predictions on cvma object
