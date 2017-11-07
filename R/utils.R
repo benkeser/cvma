@@ -85,6 +85,9 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 #' 
 #' @param object Object of class \code{cvma}
 #' @param newdata A \code{data.frame} of predictors on which to obtain predictions
+#' @param outer Return a vector of predictions from outer super learner (i.e., the one
+#' fit on all V folds, default) or a matrix of predictions from inner super learners
+#' fit on V-1 folds. 
 #' @param ... Other options (not currently used)
 #' @export
 #' @importFrom stats predict
@@ -93,39 +96,77 @@ summary.cvma <- function(object, aspect = "outcomes", ...){
 #' the respective univariate outcome. Each entry in the outputted list is itself a list with two entries. 
 #' The first is a vector of super learner predictions for the particular outcome, while the second
 #' is a matrix with columns corresponding the the various learners predictions of the particular outcome. 
+#' TO DO: Rethink formatting of output when outer = TRUE to be more like the format
+#' when outer = FALSE? 
 #' @examples
 #' 
 #' 
 #' 
 #' # TO DO: Add examples here
 
-predict.cvma <- function(object, newdata, ...){
-	# loop over outcomes
-	outcome_pred_list <- lapply(object$sl_fits, function(f){
-		# loop over learners
-		learner_pred <- Reduce(cbind, lapply(f$learner_fits, function(l){
-			stats::predict(l$fit, newdata = newdata)
-		}))
-		colnames(learner_pred) <- object$learners
-		sl_weight <- matrix(f$sl_weight)
-		sl_pred <- learner_pred %*% sl_weight
-		list(sl_pred = sl_pred, learner_pred = learner_pred)
-	})
-	names(outcome_pred_list) <- object$y_names
-	# combined outcome predictions for superlearner
-	sl_pred_mat <- Reduce(cbind, lapply(outcome_pred_list, "[[", "sl_pred"))
-	y_weight <- matrix(object$outer_weight$weight)
-	sl_pred_weight <- sl_pred_mat %*% y_weight
-	# combined outcome predictions for learners
-	learner_pred_weight <- sapply(1:length(object$learners), function(i){
-		learner_pred_mat <- Reduce(cbind, lapply(outcome_pred_list, function(l){
-			l$learner_pred[,i]
-		}))
-		learner_pred_mat %*% y_weight
-	})
-	colnames(learner_pred_weight) <- object$learners
-	y_weight_out <- list(sl_pred = sl_pred_weight, learner_pred = learner_pred_weight)
-	out <- c(list(y_weight = y_weight_out), outcome_pred_list)
+predict.cvma <- function(object, newdata, outer = TRUE, ...){
+	if(outer){
+		# loop over outcomes
+		outcome_pred_list <- lapply(object$sl_fits, function(f){
+			# loop over learners
+			learner_pred <- Reduce(cbind, lapply(f$learner_fits, function(l){
+				stats::predict(l$fit, newdata = newdata)
+			}))
+			colnames(learner_pred) <- object$learners
+			sl_weight <- matrix(f$sl_weight)
+			sl_pred <- learner_pred %*% sl_weight
+			list(sl_pred = sl_pred, learner_pred = learner_pred)
+		})
+		names(outcome_pred_list) <- object$y_names
+		# combined outcome predictions for superlearner
+		sl_pred_mat <- Reduce(cbind, lapply(outcome_pred_list, "[[", "sl_pred"))
+		y_weight <- matrix(object$outer_weight$weight)
+		sl_pred_weight <- sl_pred_mat %*% y_weight
+		# combined outcome predictions for learners
+		learner_pred_weight <- sapply(1:length(object$learners), function(i){
+			learner_pred_mat <- Reduce(cbind, lapply(outcome_pred_list, function(l){
+				l$learner_pred[,i]
+			}))
+			learner_pred_mat %*% y_weight
+		})
+		colnames(learner_pred_weight) <- object$learners
+		y_weight_out <- list(sl_pred = sl_pred_weight, learner_pred = learner_pred_weight)
+		out <- c(list(y_weight = y_weight_out), outcome_pred_list)
+	}else{
+		if(is.null(object$inner_sl_fits)){
+			stop("inner_sl_fits not returned in call to cvma")
+		}
+		# loop over outcomes
+		outcome_pred_list <- lapply(object$inner_sl_fits, function(f){
+			# loop over learners
+			learner_pred <- Reduce(cbind, lapply(f$learner_fits, function(l){
+				stats::predict(l$fit, newdata = newdata)
+			}))
+			colnames(learner_pred) <- object$learners
+			sl_weight <- matrix(f$sl_weight)
+			sl_pred <- learner_pred %*% sl_weight
+			list(Yname = f$Yname, training_folds = f$training_folds, 
+			     sl_pred = sl_pred, learner_pred = learner_pred)
+		})
+		# combined outcome predictions for superlearner
+		# first split outcome_pred_list
+		split_list <- split(outcome_pred_list, rep(1:object$V, length(object$y_names)))
+		# now lapply over that list
+		y_weight_out <- mapply(sl = split_list, w = object$inner_weight, function(sl, w){
+			sl_pred_mat <- Reduce(cbind, lapply(sl, "[[", "sl_pred"))
+			y_weight <- matrix(w$weight)
+			sl_pred_weight <- sl_pred_mat %*% y_weight
+			# and for learners
+			learner_pred_mat <- sapply(1:length(object$learners), function(i){
+				learner_pred <- Reduce(cbind, lapply(sl, function(l){ l$learner_pred[,i] }))
+				learner_pred %*% y_weight
+			})
+			colnames(learner_pred_mat) <- object$learners
+			list(Yname = "combined outcome", training_folds = sl[[1]]$training_folds, sl_pred = sl_pred_weight, learner_pred = learner_pred_mat)
+		}, SIMPLIFY = FALSE)
+		names(y_weight_out) <- NULL
+		out <- c(y_weight_out, outcome_pred_list)
+	}
 	return(out)
 }
 
