@@ -11,8 +11,8 @@ reweight_cvma(object, Y, X, sl_control = list(ensemble_fn = "ensemble_linear",
   y_weight_control = list(ensemble_fn = "ensemble_linear", weight_fn =
   "weight_y_convex", optim_risk_fn = "optim_risk_y_r2", cv_risk_fn =
   "cv_risk_y_r2", alpha = 0.05), return_control = list(outer_weight = TRUE,
-  outer_sl = TRUE, all_y = TRUE, all_learner_assoc = TRUE, all_learner_fits =
-  FALSE), scale = FALSE)
+  outer_sl = TRUE, inner_sl = FALSE, all_y = TRUE, all_learner_assoc = TRUE,
+  all_learner_fits = FALSE), scale = FALSE)
 }
 \arguments{
 \item{object}{An object of class \code{cvma}.}
@@ -79,6 +79,7 @@ fit <- cvma(Y = Y, X = X, V = 5,
             learners = c("SL.glm","SL.mean"), 
 			   return_control = list(outer_weight = TRUE,
                                   outer_sl = TRUE,
+                                  inner_sl = FALSE, 
                                   all_y = TRUE,
                                   all_learner_assoc = TRUE,
                                   all_learner_fits = TRUE))
