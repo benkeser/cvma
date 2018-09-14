@@ -128,8 +128,8 @@ cvma <- function(Y, X, V = 5, learners,
     all_fit_tasks <- make_fit_task_list(Ynames = colnames(Ymat), learners = learners, 
                                         V = V, return_outer_sl = return_control$outer_sl)
     
-    all_fits <- future.apply::future_lapply(all_fit_tasks, FUN = get_fit, folds = folds, 
-                              X = X, Y = Ymat, sl_control = sl_control)
+    all_fits <- future.apply::future_lapply(X = all_fit_tasks, FUN = get_fit, folds = folds, 
+                              tmpX = X, Y = Ymat, sl_control = sl_control)
 
     # all super learner weight-getting tasks
     all_sl_tasks <- make_sl_task_list(Ynames = colnames(Ymat), V = V)
