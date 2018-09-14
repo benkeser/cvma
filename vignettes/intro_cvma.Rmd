@@ -60,10 +60,17 @@ Y2 <- rnorm(100, X$x1 + X$x2, 3)
 Y <- data.frame(Y1 = Y1, Y2 = Y2)
 ```
 
-Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mean and neural networks). In order to specify more algorithms, see `SuperLearner::listWrappers()` for implemented learners supported by the package `SuperLearner`.
+Next, we run `cvma` with 10 folds and 3 learners (generalized linear models, mean and neural networks). In order to specify more algorithms, see `SuperLearner::listWrappers()` for implemented learners supported by the package `SuperLearner`. We emphasize that \code{all_learner_fits} must be set to TRUE for future re-fitting.  
 
 ```{r nonpar R^2}
-fit <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean","SL.nnet"))
+fit <- cvma(Y = Y, X = X, V = 10, learners = c("SL.glm","SL.mean","SL.nnet"),
+            return_control = list(outer_weight = TRUE,
+                                  outer_sl = TRUE,
+                                  inner_sl = FALSE,
+                                  all_y = TRUE,
+                                  all_learner_assoc = TRUE,
+                                  all_learner_fits = TRUE))
+
 fit
 ```
 
@@ -80,6 +87,42 @@ We can explore the results of `cvma` a bit more.
 - `fit$outer_weight` returns outcome weights for outer-most fold of cross-validation and the mean of the combined outcomes.
 
 - `fit$outer_weight` returns outcome weights for inner-most fold of cross-validation, folds used for training and the mean of the combined outcomes.
+
+We can generate a nice output using the `summary` function. In particular, this function will summarize results of running `cvma` by providing a user-friendly output for final weights, Super Learner risks and weights, cross-validation associated measures for each outcome and for each learner.
+
+```{r summary}
+#Final weights:
+summary(fit, "weights")
+
+#Super Learner output:
+summary(fit, "superlearner")
+
+#Cross-validation measures for each outcome:
+summary(fit, "outcomes")
+
+#Cross-validation measures for each learner in the library:
+summary(fit, "learners")
+```
+
+We note that the majority of the computation time in `cvma` is spent fitting learners. In order to allow the user to take advatange of many different options `cvma` provides, \code{reweight_cvma} functon re-computes weights without re-fitting all of the learners. In addition to the standard input arguments to `cvma`, we just need to add the previously obtained fit object:
+
+```{r reweight cvma}
+re_fit <- reweight_cvma(fit, Y = Y, X = X,
+       sl_control = list(ensemble_fn = "ensemble_linear",
+                               optim_risk_fn = "optim_risk_sl_se",
+                               weight_fn = "weight_sl_01",
+                               cv_risk_fn = "cv_risk_sl_r2",
+                               family = gaussian(),
+                               alpha = 0.05),
+       y_weight_control = list(ensemble_fn = "ensemble_linear",
+                                 weight_fn = "weight_y_01",
+                                 optim_risk_fn = "optim_risk_y_r2",
+                                 cv_risk_fn = "cv_risk_y_r2",
+                                 alpha = 0.05))
+
+re_fit
+```
+
 
 ## Negative log-likelihood
 
