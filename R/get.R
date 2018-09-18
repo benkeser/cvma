@@ -17,9 +17,9 @@ get_fit <- function(task, folds, tmpX, Y, sl_control){
     valid_idx <- !train_idx
 
     train_Y <- Y[train_idx, task$Yname]
-    train_X <- X[train_idx, , drop = FALSE]
+    train_X <- tmpX[train_idx, , drop = FALSE]
     if(sum(valid_idx) > 0){
-      valid_X <- X[valid_idx, , drop = FALSE]
+      valid_X <- tmpX[valid_idx, , drop = FALSE]
     }else{
       # if learner being fit on all data, then return
       # predictions on training sample
