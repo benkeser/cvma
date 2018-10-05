@@ -121,8 +121,23 @@ cvma <- function(Y, X, V = 5, learners,
     }
     
     # TO DO: make_folds function with more options, possibly from origami?
-    folds <- rep(seq_len(V), length = n)
-    folds <- sample(folds)
+    if(!all(y %in% c(0,1))){
+      folds <- rep(seq_len(V), length = n)
+      folds <- sample(folds)
+    }else{
+      within.split <- suppressWarnings(tapply(1:n, 
+                INDEX = Y, FUN = split, rep(1:V)))
+      validRows <- vector("list", length = V)
+      names(validRows) <- paste(seq(V))
+      for (vv in seq(V)) {
+        validRows[[vv]] <- c(within.split[[1]][[vv]], 
+          within.split[[2]][[vv]])
+      }
+      folds <- rep(NA, n)
+      for(v in 1:V){
+        folds[validRows[[v]]] <- v
+      } 
+    }
 
     # all learner fitting tasks
     all_fit_tasks <- make_fit_task_list(Ynames = colnames(Ymat), learners = learners, 
