@@ -121,7 +121,7 @@ cvma <- function(Y, X, V = 5, learners,
     }
     
     # TO DO: make_folds function with more options, possibly from origami?
-    if(!all(y %in% c(0,1))){
+    if(!all(Y[,1] %in% c(0,1))){
       folds <- rep(seq_len(V), length = n)
       folds <- sample(folds)
     }else{
