@@ -4,8 +4,8 @@
 \alias{get_y_weight}
 \title{Get outcome weights based on cross-validated super learner fits}
 \usage{
-get_y_weight(task, Y, V, Ynames, all_fits, all_sl, all_fit_tasks, sl_control,
-  y_weight_control, folds, learners)
+get_y_weight(task, Y, V, Ynames, all_fits, all_sl, all_fit_tasks,
+  sl_control, y_weight_control, folds, learners)
 }
 \arguments{
 \item{task}{A named list identifying what training folds to use to 

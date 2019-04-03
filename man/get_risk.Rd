@@ -4,8 +4,8 @@
 \alias{get_risk}
 \title{Get cross-validated risk of entire procedure (i.e., outer-most cross-validation layer)}
 \usage{
-get_risk(Y, V, all_fit_tasks, all_fits, all_weight, folds, all_sl, sl_control,
-  y_weight_control, learners)
+get_risk(Y, V, all_fit_tasks, all_fits, all_weight, folds, all_sl,
+  sl_control, y_weight_control, learners)
 }
 \arguments{
 \item{Y}{A matrix or data.frame of outcomes}

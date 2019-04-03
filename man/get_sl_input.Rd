@@ -4,7 +4,8 @@
 \alias{get_sl_input}
 \title{Create input list for \code{get_sl}}
 \usage{
-get_sl_input(split_Y, Yname, valid_folds, V, all_fit_tasks, all_fits, learners)
+get_sl_input(split_Y, Yname, valid_folds, V, all_fit_tasks, all_fits,
+  learners)
 }
 \arguments{
 \item{split_Y}{The outcome matrix split by relevant validation folds.}
