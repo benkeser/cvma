@@ -4,7 +4,7 @@
 \alias{get_fit}
 \title{Fit a learner on training folds and get predictions on validation folds}
 \usage{
-get_fit(task, folds, X, Y, sl_control)
+get_fit(task, folds, tmpX, Y, sl_control)
 }
 \arguments{
 \item{task}{A named list identifying what training_folds to fit the learner
@@ -13,7 +13,7 @@ the validation folds).}
 
 \item{folds}{Vector identifying which fold observations fall into.}
 
-\item{X}{A matrix or data.frame of predictors.}
+\item{tmpX}{A matrix or data.frame of predictors.}
 
 \item{Y}{A matrix or data.frame of outcomes.}
 
