@@ -52,7 +52,7 @@
 #' 
 #' @seealso predict method 
 #' 
-#' @importFrom future future_lapply
+#' @importFrom future.apply future_lapply
 #' @importFrom stats gaussian
 #' @import SuperLearner 
 #' 

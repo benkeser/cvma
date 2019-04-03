@@ -4,8 +4,8 @@
 \alias{get_sl_pred_out}
 \title{Helper function to get super learner predictions formatted properly.}
 \usage{
-get_sl_pred_out(sl_training_folds, Ynames, outer_valid_folds, all_fit_tasks,
-  all_fits, all_sl, learners, sl_control, V)
+get_sl_pred_out(sl_training_folds, Ynames, outer_valid_folds,
+  all_fit_tasks, all_fits, all_sl, learners, sl_control, V)
 }
 \description{
 Helper function to get super learner predictions formatted properly.

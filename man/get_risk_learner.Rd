@@ -4,8 +4,8 @@
 \alias{get_risk_learner}
 \title{Get cross-validated risk of the super learner for a univariate outcome}
 \usage{
-get_risk_learner(task, Y, V, all_sl, all_fit_tasks, all_fits, folds, sl_control,
-  learners, all_weight)
+get_risk_learner(task, Y, V, all_sl, all_fit_tasks, all_fits, folds,
+  sl_control, learners, all_weight)
 }
 \arguments{
 \item{task}{A named list identifying what training folds to use to 

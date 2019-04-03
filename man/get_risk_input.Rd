@@ -4,8 +4,8 @@
 \alias{get_risk_input}
 \title{Create input list for \code{get_risk}}
 \usage{
-get_risk_input(split_Y, Ynames, all_fits, V, learners, all_sl, all_fit_tasks,
-  all_weight, sl_control)
+get_risk_input(split_Y, Ynames, all_fits, V, learners, all_sl,
+  all_fit_tasks, all_weight, sl_control)
 }
 \arguments{
 \item{split_Y}{The outcome matrix split by relevant validation folds.}

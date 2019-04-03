@@ -4,11 +4,12 @@
 \alias{compare_cvma}
 \title{Compare measures of association between two fits}
 \usage{
-compare_cvma(object1, object2, contrast = "diff", compare_control = list(f =
-  function(h_cv_measures) {     h_cv_measures }, f_inv = function(h_cv_measures)
-  {     h_cv_measures }, h = function(cv_measure1, cv_measure2) {    
-  cv_measure1 - cv_measure2 }, fh_grad = function(cv_measure1, cv_measure2) {   
-   c(1, -1) }, null = 0), alpha = 0.05)
+compare_cvma(object1, object2, contrast = "diff",
+  compare_control = list(f = function(h_cv_measures) {     h_cv_measures
+  }, f_inv = function(h_cv_measures) {     h_cv_measures }, h =
+  function(cv_measure1, cv_measure2) {     cv_measure1 - cv_measure2 },
+  fh_grad = function(cv_measure1, cv_measure2) {     c(1, -1) }, null = 0),
+  alpha = 0.05)
 }
 \arguments{
 \item{object1}{An object of class \code{cvma}}
