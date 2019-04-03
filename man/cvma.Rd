@@ -38,7 +38,9 @@ super learner fit for each outcome on all the data), \code{all_y} (whether to re
 performance metrics for all outcomes), \code{all_learner_assoc} (whether to return cross-validation
 performance metrics for all learners), \code{all_learner_fits} (whether to return all learner fits, 
 which, while memory intensive, can be helpful if association measures based on different outcome 
-weighting schemes are desired).}
+weighting schemes are desired).  TO DO: For all the control options, it would be nice
+if one could just input one of the entries and have the others set to default a la 
+SuperLearner control or caret trControl.}
 
 \item{scale}{Standardize each outcome to be mean zero with standard deviation 1.}
 }
@@ -51,7 +53,10 @@ The \code{sl_fit} will return Super Learner fit for each outcome and associated 
 all the data. In addition, it will return the fit for all learners based on all folds. 
 The \code{outer_weight} will return the outcome weights obtained using outer-most fold of CV. 
 \code{inner_weight} returns outcome weights obtained using inner-most fold of CV. Additinally, 
-\code{all_learner_fits} returns all learner fits.
+\code{all_learner_fits} returns all learner fits. 
+TO DO: Should cvma have $cv_measure, $ci_low, $ci_high, and $p_value returned? 
+These are seen when the objects are printed so it may be natural for users to think
+that those are named in the cvma object.
 }
 \description{
 A flexible interface for computing cross-validation-based measures of maximal association.

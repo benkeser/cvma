@@ -5,21 +5,21 @@
 #' the validation folds). 
 #' @param folds Vector identifying which fold observations fall into. 
 #' @param Y A matrix or data.frame of outcomes.
-#' @param X A matrix or data.frame of predictors.
+#' @param tmpX A matrix or data.frame of predictors.
 #' @param sl_control A list with named entries ensemble.fn, optim_risk_fn, weight_fn,
 #' cv_risk_fn, family. Available functions can be viewed with \code{sl_control_options()}. See
 #' \code{?sl_control_options} for more on how users may supply their own functions.  
 #' 
 #' @return A named list with task and output of super learner wrapper fit. 
 
-get_fit <- function(task, folds, X, Y, sl_control){
+get_fit <- function(task, folds, tmpX, Y, sl_control){
     train_idx <- folds %in% task$training_folds
     valid_idx <- !train_idx
 
     train_Y <- Y[train_idx, task$Yname]
-    train_X <- X[train_idx, , drop = FALSE]
+    train_X <- tmpX[train_idx, , drop = FALSE]
     if(sum(valid_idx) > 0){
-      valid_X <- X[valid_idx, , drop = FALSE]
+      valid_X <- tmpX[valid_idx, , drop = FALSE]
     }else{
       # if learner being fit on all data, then return
       # predictions on training sample

@@ -35,7 +35,9 @@
 #' performance metrics for all outcomes), \code{all_learner_assoc} (whether to return cross-validation
 #' performance metrics for all learners), \code{all_learner_fits} (whether to return all learner fits, 
 #' which, while memory intensive, can be helpful if association measures based on different outcome 
-#' weighting schemes are desired). 
+#' weighting schemes are desired).  TO DO: For all the control options, it would be nice
+#' if one could just input one of the entries and have the others set to default a la 
+#' SuperLearner control or caret trControl. 
 #' @param scale Standardize each outcome to be mean zero with standard deviation 1.
 #' 
 #' @return \code{cv_assoc} returns risk for the entire procedure. The \code{cv_assoc_all_y} will return 
@@ -47,6 +49,9 @@
 #' The \code{outer_weight} will return the outcome weights obtained using outer-most fold of CV. 
 #' \code{inner_weight} returns outcome weights obtained using inner-most fold of CV. Additinally, 
 #' \code{all_learner_fits} returns all learner fits. 
+#' TO DO: Should cvma have $cv_measure, $ci_low, $ci_high, and $p_value returned? 
+#' These are seen when the objects are printed so it may be natural for users to think
+#' that those are named in the cvma object. 
 #'  
 #' @export
 #' 
@@ -116,15 +121,30 @@ cvma <- function(Y, X, V = 5, learners,
     }
     
     # TO DO: make_folds function with more options, possibly from origami?
-    folds <- rep(seq_len(V), length = n)
-    folds <- sample(folds)
+    if(!all(Y[,1] %in% c(0,1))){
+      folds <- rep(seq_len(V), length = n)
+      folds <- sample(folds)
+    }else{
+      within.split <- suppressWarnings(tapply(1:n, 
+                INDEX = Y, FUN = split, rep(1:V)))
+      validRows <- vector("list", length = V)
+      names(validRows) <- paste(seq(V))
+      for (vv in seq(V)) {
+        validRows[[vv]] <- c(within.split[[1]][[vv]], 
+          within.split[[2]][[vv]])
+      }
+      folds <- rep(NA, n)
+      for(v in 1:V){
+        folds[validRows[[v]]] <- v
+      } 
+    }
 
     # all learner fitting tasks
     all_fit_tasks <- make_fit_task_list(Ynames = colnames(Ymat), learners = learners, 
                                         V = V, return_outer_sl = return_control$outer_sl)
     
-    all_fits <- future::future_lapply(all_fit_tasks, FUN = get_fit, folds = folds, 
-                              X = X, Y = Ymat, sl_control = sl_control)
+    all_fits <- future.apply::future_lapply(X = all_fit_tasks, FUN = get_fit, folds = folds, 
+                              tmpX = X, Y = Ymat, sl_control = sl_control)
 
     # all super learner weight-getting tasks
     all_sl_tasks <- make_sl_task_list(Ynames = colnames(Ymat), V = V)
